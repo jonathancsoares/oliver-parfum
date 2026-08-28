@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171717"><meta name="description" content="Gestão da Oliver Parfum">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg">
+<title>Oliver Parfum</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f0e9;color:#171717;font-family:Arial,sans-serif;padding-bottom:78px}
+.wrap{max-width:620px;margin:auto;padding:18px 15px}.brand{text-align:center;margin:6px 0 20px}.logo{font:700 30px Georgia,serif;letter-spacing:2px}.sub{font-size:10px;letter-spacing:4px;color:#9a783d}
+nav{position:fixed;bottom:0;left:0;right:0;background:#171717;display:flex;justify-content:center;z-index:10}nav button{flex:1;max-width:125px;background:none;color:#ddd;border:0;padding:9px 3px;font-size:10px}nav b{display:block;font-size:19px;margin-bottom:2px}nav button.active{color:#e4c477}
+.page{display:none}.page.active{display:block}.card{background:#fff;border-radius:19px;padding:18px;margin:12px 0;box-shadow:0 7px 24px #00000010}h2{font-size:17px;margin:0 0 15px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{margin-bottom:12px}label{font-size:12px;font-weight:700;display:block;margin-bottom:6px}
+input,select{width:100%;padding:12px;border:1px solid #ddd5c8;border-radius:11px;background:#fbfaf8;font-size:16px}button{border:0;border-radius:11px;padding:12px;font-weight:700;cursor:pointer}
+.primary{background:#171717;color:#fff;width:100%}.gold{background:#c6a35d;color:#171717;width:100%}.muted{background:#e8e3da;width:100%}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.q{background:#eee8dc}.q.active{background:#9d7a3d;color:white}
+.result{background:#171717;color:#fff;border-radius:19px;padding:19px}.row{display:flex;justify-content:space-between;padding:7px 0;color:#ddd}.big{font-size:34px;color:#e4c477;font-weight:900}.line{border-top:1px solid #444;margin-top:10px;padding-top:12px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kpi{background:#171717;color:#fff;border-radius:16px;padding:15px}.kpi span{display:block;color:#bbb;font-size:11px}.kpi strong{display:block;font-size:20px;margin-top:5px}
+.item{border:1px solid #e3ddd2;border-radius:13px;padding:12px;margin:8px 0;background:#fff}.item strong{display:block}.item small{color:#777}.danger{background:#eee;color:#8a2d2d;padding:8px 10px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.actions button{padding:8px 10px;font-size:12px}
+.empty{text-align:center;color:#777;padding:18px}.toast{position:fixed;top:15px;left:50%;transform:translateX(-50%);background:#171717;color:#fff;padding:11px 16px;border-radius:10px;display:none;z-index:30}
+@media(max-width:390px){.grid{grid-template-columns:1fr}.quick{grid-template-columns:repeat(3,1fr)}}
+</style></head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="wrap"><div class="brand"><div class="logo">OLIVER PARFUM</div><div class="sub">GESTÃO DA LOJA</div></div>
+
+<section id="painel" class="page active">
+<div class="kpis">
+<div class="kpi"><span>Faturamento</span><strong id="kFat">R$ 0,00</strong></div>
+<div class="kpi"><span>Recebido</span><strong id="kRec">R$ 0,00</strong></div>
+<div class="kpi"><span>A receber</span><strong id="kPend">R$ 0,00</strong></div>
+<div class="kpi"><span>Vendas</span><strong id="kVendas">0</strong></div>
+</div>
+<div class="card"><h2>Resumo</h2><div class="row"><span>Total investido</span><strong id="investido">R$ 829,00</strong></div><div class="field" style="margin-top:10px"><label>Editar total investido</label><input id="investimentoEdit" inputmode="decimal" placeholder="829,00"></div><button class="gold" onclick="saveInvestment()">SALVAR INVESTIMENTO</button><div class="row" style="margin-top:10px"><span>Resultado sobre investimento</span><strong id="roi">R$ 0,00</strong></div><button class="primary" style="margin-top:8px" onclick="showPage('vendas')">+ Registrar venda</button></div>
+<div class="card"><h2>Últimas vendas</h2><div id="ultimas"></div></div>
+</section>
+
+<section id="calculadora" class="page">
+<div class="card"><h2>Calculadora de preço</h2>
+<div class="field"><label>Custo do produto</label><input id="c_prod" inputmode="decimal" placeholder="0,00"></div>
+<div class="grid"><div class="field"><label>Frete</label><input id="c_frete" inputmode="decimal" placeholder="0,00"></div><div class="field"><label>Embalagem</label><input id="c_emb" inputmode="decimal" placeholder="0,00"></div></div>
+<div class="field"><label>Outros custos</label><input id="c_outros" inputmode="decimal" placeholder="0,00"></div>
+<div class="field"><label>Taxa de parcelamento (%)</label><input id="c_taxa" inputmode="decimal" value="0"></div>
+<div class="field"><label>Lucro sobre o custo bruto (%)</label><input id="c_lucro" inputmode="decimal" value="50"></div>
+<div class="quick">
+<button class="q" data-v="20">20%</button><button class="q" data-v="30">30%</button><button class="q" data-v="40">40%</button><button class="q active" data-v="50">50%</button>
+<button class="q" data-v="60">60%</button><button class="q" data-v="70">70%</button><button class="q" data-v="80">80%</button><button class="q" data-v="100">100%</button>
+</div><div class="field" style="margin-top:12px"><label>Arredondamento</label><select id="c_arred"><option value="exato">Preço exato</option><option value="90">Final ,90</option><option value="99">Final ,99</option><option value="5">Próximo R$ 5</option><option value="10">Próximo R$ 10</option></select></div>
+</div>
+<div class="result"><div class="row"><span>Custos</span><strong id="r_fixos">R$ 0,00</strong></div><div class="row"><span>Taxa</span><strong id="r_taxa">R$ 0,00</strong></div><div class="line">CUSTO BRUTO<div id="r_bruto" class="big">R$ 0,00</div></div><div class="row"><span>Lucro</span><strong id="r_lucro">R$ 0,00</strong></div><div class="line">PREÇO CALCULADO<div id="r_preco" class="big">R$ 0,00</div></div><div class="line">PREÇO SUGERIDO<div id="r_sug" class="big">R$ 0,00</div></div><button class="gold" id="copyPrice" style="margin-top:14px">Copiar preço sugerido</button></div>
+</section>
+
+<section id="produtos" class="page"><div class="card"><h2>Produtos</h2>
+<div class="grid"><div class="field"><label>Produto</label><input id="p_nome"></div><div class="field"><label>Tamanho</label><input id="p_tam" placeholder="100ml"></div></div>
+<div class="grid"><div class="field"><label>Categoria</label><input id="p_cat" value="Perfume"></div><div class="field"><label>Custo</label><input id="p_custo" inputmode="decimal"></div></div>
+<div class="grid"><div class="field"><label>Preço de venda</label><input id="p_preco" inputmode="decimal"></div><div class="field"><label>Estoque</label><input id="p_estoque" type="number" value="0"></div></div>
+<div class="field"><label>Observações</label><input id="p_obs"></div>
+<button class="primary" onclick="addProduct()">Adicionar produto</button></div><div id="productList"></div></section>
+
+<section id="clientes" class="page"><div class="card"><h2>Clientes</h2>
+<div class="field"><label>Nome</label><input id="cl_nome"></div><div class="grid"><div class="field"><label>WhatsApp/Contato</label><input id="cl_tel"></div><div class="field"><label>Cidade</label><input id="cl_cidade"></div></div><div class="field"><label>Observações</label><input id="cl_obs"></div>
+<button class="primary" onclick="addClient()">Adicionar cliente</button></div><div id="clientList"></div></section>
+
+<section id="vendas" class="page"><div class="card"><h2>Nova venda</h2>
+<div class="field"><label>Cliente</label><select id="v_cliente"></select></div><div class="field"><label>Produto</label><select id="v_produto"></select></div>
+<div class="grid"><div class="field"><label>Quantidade</label><input id="v_qtd" type="number" value="1" min="1"></div><div class="field"><label>Valor unitário</label><input id="v_valor" inputmode="decimal"></div></div>
+<div class="grid"><div class="field"><label>Forma de pagamento</label><select id="v_pag"><option>Pix</option><option>Dinheiro</option><option>Débito</option><option>Crédito</option><option>Parcelado</option><option>A pagar</option></select></div><div class="field"><label>Status</label><select id="v_status"><option>Pago</option><option>Pendente</option><option>Parcial</option></select></div></div>
+<div class="field"><label>Valor pago</label><input id="v_pago" inputmode="decimal" value="0"></div>
+
+<div class="card" style="margin-top:10px">
+  <h3>Itens da venda</h3>
+  <div id="saleCart" class="list"><div class="empty">Nenhum produto adicionado</div></div>
+  <div class="actions">
+    <button class="gold" onclick="addCartItem()">+ ADICIONAR PRODUTO</button>
+    <button class="primary" onclick="clearSaleCart()">LIMPAR ITENS</button>
+  </div>
+  <div class="row" style="margin-top:10px"><span>Total da venda</span><strong id="cartTotal">R$ 0,00</strong></div>
+</div>
+
+<button class="primary" onclick="addSale()">Registrar venda</button></div><div class="card"><h2>Vendas</h2><div id="salesList"></div></div></section>
+</div>
+
+<nav>
+<button class="active" data-page="painel"><b>📊</b>Painel</button><button data-page="calculadora"><b>🧮</b>Calcular</button><button data-page="produtos"><b>📦</b>Produtos</button><button data-page="clientes"><b>👥</b>Clientes</button><button data-page="vendas"><b>🛒</b>Vendas</button>
+<button onclick="showPage('configuracoes')">⚙️ Configurações</button></nav>
+<script>
+const brl=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v||0);
+const num=x=>{let s=(x||'').toString().replace(/\./g,'').replace(',','.').replace(/[^\d.-]/g,'');return parseFloat(s)||0};
+const $=id=>document.getElementById(id);
+const store={
+  get:(k,d)=>{
+    try{
+      const raw=localStorage.getItem(k);
+      if(raw===null)return d;
+      const value=JSON.parse(raw);
+      return value===null||value===undefined?d:value;
+    }catch(e){return d;}
+  },
+  set:(k,v)=>{
+    try{localStorage.setItem(k,JSON.stringify(v));return true}
+    catch(e){return false}
+  }
+};
+function loadInvestment(){
+  try{
+    const raw=localStorage.getItem('investment');
+    if(raw===null)return 829;
+    const n=Number(String(raw).replace(',','.'));
+    return Number.isFinite(n)&&n>=0?n:829;
+  }catch(e){return 829;}
+}
+function safeNum(v,fallback=0){
+  const n=num(v);
+  return Number.isFinite(n)?n:fallback;
+}
+let clients=store.get('clients',[{nome:'Valmira',tel:'',cidade:'',obs:''},{nome:'Glenda',tel:'',cidade:'',obs:''},{nome:'Thalia',tel:'',cidade:'',obs:''},{nome:'Luciene',tel:'',cidade:'',obs:''},{nome:'Marcos Mefsa',tel:'',cidade:'',obs:''},{nome:'Anderson Mefsa',tel:'',cidade:'',obs:''},{nome:'Eliane',tel:'',cidade:'',obs:''},{nome:'Simone',tel:'',cidade:'',obs:''},{nome:'Marcelo',tel:'',cidade:'',obs:''}]);
+let products=store.get('products',[{nome:'Charlota',tam:'25ml',cat:'Perfume',custo:0,preco:80,estoque:0,obs:''},{nome:'Amber',tam:'30ml',cat:'Perfume',custo:0,preco:135,estoque:0},{nome:'Baccarat Rouge',tam:'100ml',cat:'Perfume',custo:0,preco:380,estoque:0},{nome:'Delina de Marly',tam:'25ml',cat:'Perfume',custo:0,preco:0,estoque:0},{nome:'Le Moment (bolsinha)',tam:'25ml',cat:'Perfume',custo:0,preco:160,estoque:0},{nome:'Gaultier Divine',tam:'25ml',cat:'Perfume',custo:0,preco:0,estoque:0},{nome:'Silver Scent Intense',tam:'25ml',cat:'Perfume',custo:0,preco:70,estoque:0},{nome:'Angel Elixir',tam:'25ml',cat:'Perfume',custo:0,preco:70,estoque:0},{nome:'Scandal',tam:'25ml',cat:'Perfume',custo:0,preco:80,estoque:0},{nome:'Delina de Meliora',tam:'25ml',cat:'Perfume',custo:0,preco:0,estoque:0}]);
+let sales=store.get('sales',[{data:'',cliente:'Valmira',produto:'Charlota',tam:'25ml',qtd:1,unit:80,total:80,pag:'Pix',status:'Pago',pago:80},{data:'',cliente:'Glenda',produto:'Amber',tam:'30ml',qtd:1,unit:135,total:135,pag:'Pix',status:'Pago',pago:135},{data:'',cliente:'Thalia',produto:'Baccarat Rouge',tam:'100ml',qtd:1,unit:380,total:380,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Luciene',produto:'Le Moment (bolsinha)',tam:'25ml',qtd:1,unit:160,total:160,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Marcos Mefsa',produto:'Silver Scent Intense',tam:'25ml',qtd:1,unit:70,total:70,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Anderson Mefsa',produto:'Angel Elixir',tam:'25ml',qtd:1,unit:70,total:70,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Eliane',produto:'Scandal',tam:'25ml',qtd:1,unit:80,total:80,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Simone',produto:'Gaultier Divine',tam:'25ml',qtd:1,unit:80,total:80,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Marcelo',produto:'Scandal',tam:'25ml',qtd:1,unit:160,total:160,pag:'A pagar',status:'Pendente',pago:0}]);
+
+function toast(t){$('toast').textContent=t;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',1600)}
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));renderAll();scrollTo(0,0)}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+
+function round(v){let t=$('c_arred').value;if(t==='exato')return v;if(t==='90')return Math.ceil(v-.90)+.90;if(t==='99')return Math.ceil(v-.99)+.99;if(t==='5')return Math.ceil(v/5)*5;if(t==='10')return Math.ceil(v/10)*10}
+function calc(){let fix=num($('c_prod').value)+num($('c_frete').value)+num($('c_emb').value)+num($('c_outros').value),tax=fix*num($('c_taxa').value)/100,bruto=fix+tax,lp=bruto*num($('c_lucro').value)/100,p=bruto+lp,s=round(p);$('r_fixos').textContent=brl(fix);$('r_taxa').textContent=brl(tax);$('r_bruto').textContent=brl(bruto);$('r_lucro').textContent=brl(lp);$('r_preco').textContent=brl(p);$('r_sug').textContent=brl(s);return s}
+['c_prod','c_frete','c_emb','c_outros','c_taxa','c_lucro'].forEach(id=>$(id).addEventListener('input',calc));$('c_arred').onchange=calc;
+document.querySelectorAll('.q').forEach(b=>b.onclick=()=>{$('c_lucro').value=b.dataset.v;document.querySelectorAll('.q').forEach(x=>x.classList.remove('active'));b.classList.add('active');calc()});
+$('copyPrice').onclick=async()=>{try{await navigator.clipboard.writeText($('r_sug').textContent);toast('Preço copiado ✓')}catch(e){toast($('r_sug').textContent)}};
+
+
+function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function moneyInput(v){return Number(v||0).toFixed(2).replace('.',',')}
+function updateProduct(i){
+  if(!products[i])return toast('Produto não encontrado');
+  const nome=$('pe_nome_'+i).value.trim();if(!nome)return toast('O produto precisa ter um nome');
+  products[i]={...products[i],nome,tam:$('pe_tam_'+i).value.trim(),cat:$('pe_cat_'+i).value.trim(),custo:Math.max(0,safeNum($('pe_custo_'+i).value)),preco:Math.max(0,safeNum($('pe_preco_'+i).value)),estoque:Math.max(0,Math.floor(safeNum($('pe_estoque_'+i).value))),obs:$('pe_obs_'+i).value||''};
+  store.set('products',products);renderAll();toast('Produto atualizado ✓');
+}
+function removeProduct(i){
+  if(!confirm('Remover este produto?'))return;
+  products.splice(i,1);store.set('products',products);renderAll();toast('Produto removido ✓');
+}
+function updateClient(i){
+  if(!clients[i])return toast('Cliente não encontrado');
+  const nome=$('ce_nome_'+i).value.trim();if(!nome)return toast('O cliente precisa ter um nome');
+  clients[i]={...clients[i],nome,tel:$('ce_tel_'+i).value.trim(),cidade:$('ce_cidade_'+i).value.trim(),obs:$('ce_obs_'+i).value||''};
+  store.set('clients',clients);renderAll();toast('Cliente atualizado ✓');
+}
+function removeClient(i){
+  if(!confirm('Remover este cliente?'))return;
+  clients.splice(i,1);store.set('clients',clients);renderAll();toast('Cliente removido ✓');
+}
+function useProductInCalculator(i){
+  const p=products[i];
+  showPage('calculadora');
+  $('c_prod').value=moneyInput(p.custo);
+  $('c_frete').value='0,00';$('c_emb').value='0,00';$('c_outros').value='0,00';
+  calc();toast('Produto carregado na calculadora ✓');
+}
+function addProduct(){
+  const nome=$('p_nome').value.trim();
+  if(!nome)return toast('Informe o nome do produto');
+  products.unshift({nome,tam:$('p_tam').value.trim(),cat:$('p_cat').value.trim(),custo:Math.max(0,safeNum($('p_custo').value)),preco:Math.max(0,safeNum($('p_preco').value)),estoque:Math.max(0,Math.floor(safeNum($('p_estoque').value))),obs:$('p_obs')?.value||''});
+  store.set('products',products);
+  ['p_nome','p_tam','p_cat','p_custo','p_preco','p_obs'].forEach(x=>{if($(x))$(x).value='';});
+  if($('p_estoque'))$('p_estoque').value='0';
+  renderAll();toast('Produto adicionado ✓');
+}
+function removeCartItem(i){saleCart.splice(i,1);renderSaleCart()}
+function editCartItem(i){
+  const q=Math.max(1,num($('cartq_'+i).value));
+  const v=num($('cartv_'+i).value);
+  saleCart[i].qtd=q;
+  if(v>0)saleCart[i].unit=v;
+  renderSaleCart();
+}
+function clearSaleCart(){saleCart=[];renderSaleCart()}
+function renderSaleCart(){
+  const el=$('saleCart'); if(!el)return;
+  const total=saleCart.reduce((s,x)=>s+x.qtd*x.unit,0);
+  $('cartTotal').textContent=brl(total);
+  el.innerHTML=saleCart.map((x,i)=>{
+    const p=products[x.pi];
+    return `<div class="item"><strong>${esc(p?.nome||'Produto')}</strong><small>Estoque atual: ${p?.estoque||0}</small><div class="grid" style="margin-top:7px"><div><label>Quantidade</label><input id="cartq_${i}" type="number" min="1" value="${x.qtd}"></div><div><label>Preço unitário</label><input id="cartv_${i}" inputmode="decimal" value="${moneyInput(x.unit)}"></div></div><div class="actions"><button class="gold" onclick="editCartItem(${i})">ATUALIZAR ITEM</button><button class="danger" onclick="removeCartItem(${i})">REMOVER</button></div><small>Subtotal: ${brl(x.qtd*x.unit)}</small></div>`;
+  }).join('')||'<div class="empty">Nenhum produto adicionado</div>';
+}
+
+function addSale(){
+  const cliente=$('v_cliente').value;if(!cliente)return toast('Selecione o cliente');
+  if(!saleCart.length)return toast('Adicione pelo menos um produto');
+  for(const x of saleCart){const p=products[x.pi];if(!p)return toast('Produto não encontrado');if(x.qtd>Number(p.estoque||0))return toast('Estoque insuficiente para '+p.nome);}
+  const total=saleCart.reduce((s,x)=>s+x.qtd*x.unit,0);
+  const pago=Math.min(total,Math.max(0,safeNum($('v_pago').value)));
+  const itens=saleCart.map(x=>{const p=products[x.pi];p.estoque-=x.qtd;return {produto:p.nome,tam:p.tam,qtd:x.qtd,unit:x.unit,custo:Number(p.custo||0),subtotal:x.qtd*x.unit};});
+  sales.unshift({data:new Date().toLocaleDateString('pt-BR'),cliente,produto:itens.map(x=>x.produto).join(' + '),tam:itens.map(x=>x.tam).join(' + '),qtd:itens.reduce((s,x)=>s+x.qtd,0),unit:0,total,pag:$('v_pag').value,status:pago>=total?'Pago':pago>0?'Parcial':'Pendente',pago,itens});
+  store.set('products',products);store.set('sales',sales);saleCart=[];renderSaleCart();$('v_pago').value='0';renderAll();toast('Venda registrada ✓ — estoque atualizado');
+}
+function updateSale(i){
+  const paid = Math.max(0, num($('paid_'+i).value));
+  sales[i].pago = Math.min(paid, sales[i].total);
+  sales[i].status = $('status_'+i).value;
+  if(sales[i].pago >= sales[i].total){ sales[i].pago=sales[i].total; sales[i].status='Pago'; }
+  else if(sales[i].pago > 0 && sales[i].status === 'Pago') sales[i].status='Parcial';
+  else if(sales[i].pago === 0 && sales[i].status === 'Parcial') sales[i].status='Pendente';
+  store.set('sales',sales); renderAll(); toast('Pagamento atualizado ✓');
+}
+
+function updateSaleQuantity(i){
+  const s=sales[i];
+  const prod=products.find(p=>p.nome===s.produto && p.tam===s.tam) || products.find(p=>p.nome===s.produto);
+  if(!prod)return toast('Produto não encontrado no estoque');
+  const newQty=Math.max(1,num($('qty_'+i).value));
+  const oldQty=Number(s.qtd||0);
+  const diff=newQty-oldQty;
+  if(diff>0 && diff>Number(prod.estoque||0))return toast('Estoque insuficiente para aumentar a quantidade');
+  prod.estoque=Number(prod.estoque||0)-diff;
+  s.qtd=newQty;
+  s.total=newQty*Number(s.unit||0);
+  if(s.pago>s.total)s.pago=s.total;
+  if(s.pago>=s.total)s.status='Pago'; else if(s.pago>0)s.status='Parcial'; else s.status='Pendente';
+  store.set('products',products);store.set('sales',sales);renderAll();toast('Quantidade atualizada ✓');
+}
+function removeSale(i){
+  if(!confirm('Remover esta venda? O estoque será devolvido.'))return;
+  const s=sales[i];
+  const itens=Array.isArray(s.itens)&&s.itens.length?s.itens:[{produto:s.produto,tam:s.tam,qtd:s.qtd}];
+  itens.forEach(x=>{const p=products.find(p=>p.nome===x.produto&&p.tam===x.tam)||products.find(p=>p.nome===x.produto);if(p)p.estoque=Number(p.estoque||0)+Number(x.qtd||0);});
+  sales.splice(i,1);store.set('products',products);store.set('sales',sales);renderAll();toast('Venda removida ✓ — estoque devolvido');
+}
+
+function backupData(){
+  const payload={app:'Oliver Parfum',version:'2.6',createdAt:new Date().toISOString(),data:{products:JSON.parse(JSON.stringify(products||[])),clients:JSON.parse(JSON.stringify(clients||[])),sales:JSON.parse(JSON.stringify(sales||[])),investment:Number(investment||0)}};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='Oliver_Parfum_Backup_'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Backup criado ✓');
+}
+function restoreData(event){
+  const file=event.target.files?.[0];if(!file)return;
+  const reader=new FileReader();reader.onload=()=>{
+    try{const d=JSON.parse(reader.result)?.data;if(!Array.isArray(d.products)||!Array.isArray(d.clients)||!Array.isArray(d.sales))throw 0;
+      if(!confirm('Restaurar este backup? Os dados atuais serão substituídos.'))return;
+      products=d.products;clients=d.clients;sales=d.sales;investment=Math.max(0,Number(d.investment??829));
+      store.set('products',products);store.set('clients',clients);store.set('sales',sales);localStorage.setItem('investment',String(investment));saleCart=[];renderSaleCart();renderAll();toast('Backup restaurado ✓');
+    }catch(e){alert('Arquivo de backup inválido.')} event.target.value='';
+  };reader.readAsText(file);
+}
+
+function renderAll(){
+  renderSaleCart();
+$('productList').innerHTML=products.map((p,i)=>`<div class="item"><strong>${p.nome} • ${p.tam}</strong><small style="display:block;margin-top:4px;color:${Number(p.estoque||0)<=0?'#a33':Number(p.estoque||0)<=2?'#a66a00':'#4d7a50'}">Estoque: ${Number(p.estoque||0)<=0?'SEM ESTOQUE':Number(p.estoque||0)<=2?'ESTOQUE BAIXO':'NORMAL'} (${p.estoque||0})</small><div class="grid" style="margin-top:8px"><div><label>Nome</label><input id="pe_nome_${i}" value="${esc(p.nome)}"></div><div><label>Tamanho</label><input id="pe_tam_${i}" value="${esc(p.tam)}"></div></div><div class="grid"><div><label>Categoria</label><input id="pe_cat_${i}" value="${esc(p.cat)}"></div><div><label>Custo</label><input id="pe_custo_${i}" inputmode="decimal" value="${moneyInput(p.custo)}"></div></div><div class="grid"><div><label>Preço de venda</label><input id="pe_preco_${i}" inputmode="decimal" value="${moneyInput(p.preco)}"></div><div><label>Estoque</label><input id="pe_estoque_${i}" type="number" value="${p.estoque||0}"></div></div><div class="field"><label>Observações</label><input id="pe_obs_${i}" value="${esc(p.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateProduct(${i})">SALVAR PRODUTO</button><button class="primary" onclick="useProductInCalculator(${i})">USAR NA CALCULADORA</button><button class="danger" onclick="removeProduct(${i})">REMOVER</button></div></div>`).join('')||'<div class="empty">Nenhum produto</div>';
+$('clientList').innerHTML=clients.map((c,i)=>`<div class="item"><strong>${c.nome}</strong><div class="field"><label>Nome</label><input id="ce_nome_${i}" value="${esc(c.nome)}"></div><div class="grid"><div class="field"><label>WhatsApp/Contato</label><input id="ce_tel_${i}" value="${esc(c.tel||'')}"></div><div class="field"><label>Cidade</label><input id="ce_cidade_${i}" value="${esc(c.cidade||'')}"></div></div><div class="field"><label>Observações</label><input id="ce_obs_${i}" value="${esc(c.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateClient(${i})">SALVAR CLIENTE</button><button class="danger" onclick="removeClient(${i})">REMOVER</button></div></div>`).join('')||'<div class="empty">Nenhum cliente</div>';
+$('v_cliente').innerHTML=clients.map(c=>`<option>${c.nome}</option>`).join('');
+$('v_produto').innerHTML=products.map((p,i)=>`<option value="${i}">${p.nome} • ${p.tam} — ${brl(p.preco)}</option>`).join('');
+if(products.length){$('v_valor').value=products[+$('v_produto').value]?.preco||0}
+let fat=sales.reduce((a,s)=>a+s.total,0),rec=sales.reduce((a,s)=>a+s.pago,0),pend=fat-rec;
+$('kFat').textContent=brl(fat);$('kRec').textContent=brl(rec);$('kPend').textContent=brl(pend);$('kVendas').textContent=sales.length;$('investido').textContent=brl(investment);$('roi').textContent=brl(fat-investment);if($('investimentoEdit'))$('investimentoEdit').value=Number(investment||0).toFixed(2).replace('.',',');
+$('ultimas').innerHTML=sales.slice(0,5).map(s=>`<div class="item"><strong>${s.cliente} — ${s.produto}</strong><small>${s.qtd}x · ${brl(s.total)} · ${s.status}</small></div>`).join('')||'<div class="empty">Nenhuma venda</div>';
+$('salesList').innerHTML=sales.map((s,i)=>`<div class="item"><strong>${s.cliente} — ${s.produto}</strong><small>${s.data||'Sem data'} · ${s.qtd}x · Total ${brl(s.total)} · ${s.pag}</small>${s.itens?.length?'<div style="margin-top:6px">'+s.itens.map(x=>`<small>• ${x.qtd}x ${x.produto} — ${brl(x.subtotal)}</small>`).join('<br>')+'</div>':''}<div class="grid" style="margin-top:8px"><div><label>Quantidade</label><input id="qty_${i}" type="number" min="1" value="${s.qtd}"></div><div><label>Valor pago</label><input id="paid_${i}" inputmode="decimal" value="${String(s.pago||0).replace('.',',')}"></div><div><label>Status</label><select id="status_${i}"><option ${s.status==='Pago'?'selected':''}>Pago</option><option ${s.status==='Pendente'?'selected':''}>Pendente</option><option ${s.status==='Parcial'?'selected':''}>Parcial</option></select></div></div><div class="actions"><button class="gold" onclick="updateSaleQuantity(${i})">SALVAR QUANTIDADE</button><button class="gold" onclick="updateSale(${i})">SALVAR PAGAMENTO</button><button class="danger" onclick="removeSale(${i})">REMOVER VENDA</button></div><small>Saldo: ${brl(Math.max(0,s.total-(s.pago||0)))}</small></div>`).join('')||'<div class="empty">Nenhuma venda</div>';
+}
+$('v_produto').onchange=()=>{let p=products[+$('v_produto').value];$('v_valor').value=p?.preco||0};
+renderAll();calc();
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});} </script>
+
+<section id="page-configuracoes" class="page"><div class="card" id="dataStatus"><h2>🛡️ Dados locais</h2>
+<p>Seus dados ficam salvos neste navegador. Use <b>Fazer backup</b> antes de atualizar o app.</p>
+<button class="gold" onclick="backupData()">💾 FAZER BACKUP AGORA</button>
+</div>
+
+<div class="card"><h2>⚙️ Configurações</h2>
+<p>Proteja seus dados fazendo backups periódicos.</p>
+<div class="actions">
+<button class="gold" onclick="backupData()">💾 FAZER BACKUP</button>
+<button class="primary" onclick="document.getElementById('restoreFile').click()">📥 RESTAURAR BACKUP</button>
+<input id="restoreFile" type="file" accept=".json,application/json" style="display:none" onchange="restoreData(event)">
+</div><small>O backup salva produtos, clientes, vendas e investimento em um arquivo JSON.</small>
+</div>
+<div class="card"><h2>📱 Usar como aplicativo</h2>
+<p>Publique este PWA em HTTPS, abra o endereço no Chrome do celular e toque em <b>Instalar aplicativo</b> ou <b>Adicionar à tela inicial</b>.</p>
+</div></section>
+
+</body></html>
