@@ -32,7 +32,11 @@ input,select{width:100%;padding:12px;border:1px solid #ddd5c8;border-radius:11px
 <div class="kpi"><span>A receber</span><strong id="kPend">R$ 0,00</strong></div>
 <div class="kpi"><span>Vendas</span><strong id="kVendas">0</strong></div>
 </div>
-<div class="card"><h2>Resumo</h2><div class="row"><span>Total investido</span><strong id="investido">R$ 829,00</strong></div><div class="field" style="margin-top:10px"><label>Editar total investido</label><input id="investimentoEdit" inputmode="decimal" placeholder="829,00"></div><button class="gold" onclick="saveInvestment()">SALVAR INVESTIMENTO</button><div class="row" style="margin-top:10px"><span>Resultado sobre investimento</span><strong id="roi">R$ 0,00</strong></div><button class="primary" style="margin-top:8px" onclick="showPage('vendas')">+ Registrar venda</button></div>
+<div class="card"><h2>Resumo</h2><div class="row"><span>Total investido</span><strong id="investido">R$ 829,00</strong></div><div class="field" style="margin-top:10px"><label>Editar total investido</label><input id="investimentoEdit" inputmode="decimal" placeholder="829,00"></div><button class="gold" onclick="saveInvestment()">SALVAR INVESTIMENTO</button><div class="row" style="margin-top:10px"><span>Resultado sobre investimento</span><strong id="roi">R$ 0,00</strong></div><button class="primary" style="margin-top:8px" onclick="showPage('vendas')">+ Registrar venda</button><div class="actions" style="margin-top:10px">
+<button class="muted" onclick="exportBackup()">💾 FAZER BACKUP</button>
+<button class="muted" onclick="document.getElementById('restoreFile').click()">📥 RESTAURAR</button>
+<input id="restoreFile" type="file" accept=".json,application/json" hidden onchange="importBackup(event)">
+</div></div>
 <div class="card"><h2>Últimas vendas</h2><div id="ultimas"></div></div>
 </section>
 
@@ -161,6 +165,45 @@ function renderAll(){
 $('productList').innerHTML=products.map((p,i)=>`<div class="item"><strong>${esc(p.nome)} • ${esc(p.tam)}</strong><small>Estoque: ${p.estoque||0} · Custo: ${brl(p.custo)} · Venda: ${brl(p.preco)}</small><div class="editbox"><div class="grid"><div><label>Nome</label><input id="pe_nome_${i}" value="${esc(p.nome)}"></div><div><label>Tamanho</label><input id="pe_tam_${i}" value="${esc(p.tam)}"></div><div><label>Categoria</label><input id="pe_cat_${i}" value="${esc(p.cat)}"></div><div><label>Custo</label><input id="pe_custo_${i}" inputmode="decimal" value="${moneyInput(p.custo)}"></div><div><label>Preço</label><input id="pe_preco_${i}" inputmode="decimal" value="${moneyInput(p.preco)}"></div><div><label>Estoque</label><input id="pe_estoque_${i}" type="number" value="${p.estoque||0}"></div></div><div class="field"><label>Observações</label><input id="pe_obs_${i}" value="${esc(p.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateProduct(${i})">SALVAR PRODUTO</button><button class="danger" onclick="removeProduct(${i})">REMOVER</button></div></div></div>`).join('')||'<div class="empty">Nenhum produto</div>';
 $('clientList').innerHTML=clients.map((c,i)=>`<div class="item"><strong>${esc(c.nome)}</strong><div class="editbox"><div class="field"><label>Nome</label><input id="ce_nome_${i}" value="${esc(c.nome)}"></div><div class="grid"><div><label>Contato</label><input id="ce_tel_${i}" value="${esc(c.tel||'')}"></div><div><label>Cidade</label><input id="ce_cidade_${i}" value="${esc(c.cidade||'')}"></div></div><div class="field"><label>Observações</label><input id="ce_obs_${i}" value="${esc(c.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateClient(${i})">SALVAR CLIENTE</button><button class="danger" onclick="removeClient(${i})">REMOVER</button></div></div></div>`).join('')||'<div class="empty">Nenhum cliente</div>';
 $('v_cliente').innerHTML=clients.map(c=>`<option>${esc(c.nome)}</option>`).join('');$('v_produto').innerHTML=products.map((p,i)=>`<option value="${i}">${esc(p.nome)} • ${esc(p.tam)} — ${brl(p.preco)} · estoque ${p.estoque||0}</option>`).join('');let fat=sales.reduce((a,s)=>a+s.total,0),rec=sales.reduce((a,s)=>a+s.pago,0);$('kFat').textContent=brl(fat);$('kRec').textContent=brl(rec);$('kPend').textContent=brl(fat-rec);$('kVendas').textContent=sales.length;$('investido').textContent=brl(investment);$('roi').textContent=brl(fat-investment);if($('investimentoEdit'))$('investimentoEdit').value=investment.toFixed(2).replace('.',',');$('ultimas').innerHTML=sales.slice(0,5).map(s=>`<div class="item"><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · ${brl(s.total)} · ${s.status}</small></div>`).join('')||'<div class="empty">Nenhuma venda</div>';$('salesList').innerHTML=sales.map((s,i)=>`<div class="item"><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · Total ${brl(s.total)} · Pago ${brl(s.pago)} · ${esc(s.pag)}</small><div class="actions"><button class="gold" onclick="editSale(${i})">EDITAR PAGAMENTO</button><button class="danger" onclick="removeSale(${i})">REMOVER VENDA</button></div></div>`).join('')||'<div class="empty">Nenhuma venda</div>'}
+
+async function exportBackup(){
+  const data={
+    app:"Oliver Parfum",
+    backupVersion:1,
+    createdAt:new Date().toISOString(),
+    clients:clients,
+    products:products,
+    sales:sales,
+    investment:Number(investment||0)
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="Oliver_Parfum_Backup_"+new Date().toISOString().slice(0,10)+".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast("Backup criado ✓");
+}
+function importBackup(ev){
+  const file=ev.target.files?.[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const d=JSON.parse(reader.result);
+      if(!Array.isArray(d.clients)||!Array.isArray(d.products)||!Array.isArray(d.sales)) throw new Error("Formato");
+      if(!confirm("Restaurar este backup? Os dados atuais serão substituídos.")) return;
+      clients=d.clients; products=d.products; sales=d.sales;
+      investment=Number(d.investment||0);
+      store.set("clients",clients); store.set("products",products); store.set("sales",sales);
+      localStorage.setItem("investment",String(investment));
+      renderAll(); renderCart(); toast("Backup restaurado ✓");
+    }catch(e){ alert("Este arquivo não é um backup válido do Oliver Parfum."); }
+    ev.target.value="";
+  };
+  reader.readAsText(file);
+}
+
 $('v_produto').onchange=()=>{let p=products[+$('v_produto').value];$('v_valor').value=p?.preco||0};renderAll();calc();renderCart();
 $('v_produto').onchange=()=>{let p=products[+$('v_produto').value];$('v_valor').value=p?.preco||0};
 renderAll();calc();
