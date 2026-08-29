@@ -1,4 +1,4 @@
-const CACHE_NAME = "oliver-parfum-v27";
+const CACHE_NAME = "oliver-parfum-v272";
 const APP_SHELL = ["./","./index.html","./manifest.json","./icon.svg"];
 
 self.addEventListener("install", event => {

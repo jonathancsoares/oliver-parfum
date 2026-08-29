@@ -53,6 +53,49 @@ nav button{font-size:9px}
 .empty{border:1px dashed #d9d0c2;border-radius:15px;padding:22px;text-align:center;color:#8a8278;background:#fcfaf6}
 @media(max-width:650px){.wrap{padding-left:14px;padding-right:14px}.card{padding:15px;border-radius:19px}.kpi{padding:12px}.kpi strong{font-size:17px}}
 
+
+/* CONTRASTE v2.7.1 — texto escuro em superfícies claras */
+body,.wrap,.page,.card,.item,.item strong,.item small,.kpi,.kpi span,.kpi strong,
+label,.row,.row span,.row strong,h1,h2,h3,h4,p,small,span,div{
+  color:#211f1c;
+}
+.card,.item,.kpi,.empty{
+  color:#211f1c;
+}
+.item small,.kpi span,.sub,.muted-text{
+  color:#756f67;
+}
+input,select,textarea{
+  color:#211f1c !important;
+  caret-color:#211f1c;
+}
+input::placeholder,textarea::placeholder{
+  color:#91897f !important;
+  opacity:1;
+}
+button.muted{
+  color:#514a41 !important;
+}
+button.primary,button.gold{
+  color:#fffdf8 !important;
+}
+nav button{
+  color:#aaa59c !important;
+}
+nav button.active{
+  color:#f4dfb1 !important;
+}
+.item>strong:after{
+  color:#9d7a3d !important;
+}
+a{
+  color:#8e6b34;
+}
+
+
+.payment-group h2{display:flex;align-items:center;gap:7px}
+.payment-group{margin-top:12px}
+
 </style></head>
 <body>
 <div class="toast" id="toast"></div><div id="saveIndicator" class="save-indicator">● SALVO</div>
@@ -108,18 +151,34 @@ nav button{font-size:9px}
 </div>
 
 
+
 <section id="pagamentos" class="page">
-<div class="card"><h2>Controle de pagamentos</h2>
-<div class="kpis">
-<div class="kpi"><span>Total vendido</span><strong id="payFat">R$ 0,00</strong></div>
-<div class="kpi"><span>Recebido</span><strong id="payRec">R$ 0,00</strong></div>
-<div class="kpi"><span>A receber</span><strong id="payPend">R$ 0,00</strong></div>
-<div class="kpi"><span>Vendas em aberto</span><strong id="payOpen">0</strong></div>
-</div></div>
-<div class="card"><h2>🟢 Pagos</h2><div id="paidList"></div></div>
-<div class="card"><h2>🟡 Parciais</h2><div id="partialList"></div></div>
-<div class="card"><h2>🔴 Pendentes</h2><div id="pendingList"></div></div>
+  <div class="card">
+    <h2>💳 Controle de pagamentos</h2>
+    <div class="kpis">
+      <div class="kpi"><span>Total vendido</span><strong id="payFat">R$ 0,00</strong></div>
+      <div class="kpi"><span>Recebido</span><strong id="payRec">R$ 0,00</strong></div>
+      <div class="kpi"><span>A receber</span><strong id="payPend">R$ 0,00</strong></div>
+      <div class="kpi"><span>Em aberto</span><strong id="payOpen">0</strong></div>
+    </div>
+  </div>
+
+  <div class="card payment-group">
+    <h2>🟢 Pagos</h2>
+    <div id="paidList"></div>
+  </div>
+
+  <div class="card payment-group">
+    <h2>🟡 Parciais</h2>
+    <div id="partialList"></div>
+  </div>
+
+  <div class="card payment-group">
+    <h2>🔴 Pendentes</h2>
+    <div id="pendingList"></div>
+  </div>
 </section>
+
 <section id="estoque" class="page">
 <div class="card"><h2>Estoque</h2>
 <div class="kpis">
@@ -225,25 +284,48 @@ $('v_cliente').innerHTML=clients.map(c=>`<option>${esc(c.nome)}</option>`).join(
 
 function toggleItem(el){el.classList.toggle('open')}
 function renderPaymentAndStock(){
-  const fat=sales.reduce((a,s)=>a+Number(s.total||0),0);
-  const rec=sales.reduce((a,s)=>a+Number(s.pago||0),0);
-  const open=sales.filter(s=>Number(s.pago||0)<Number(s.total||0));
-  $('payFat').textContent=brl(fat); $('payRec').textContent=brl(rec); $('payPend').textContent=brl(fat-rec); $('payOpen').textContent=open.length;
-  const card=s=>{
-    const falta=Math.max(0,Number(s.total||0)-Number(s.pago||0));
-    return `<div class="item" onclick="toggleItem(this)"><strong>${esc(s.cliente)} — ${brl(s.total)}</strong><small>${esc(s.data||'')} · Pago: ${brl(s.pago||0)} · Falta: ${brl(falta)}</small><div class="editbox"><div class="row"><span>Produtos</span><strong>${esc(s.produto||((s.items||[]).map(x=>x.produto).join(' + ')))}</strong></div><div class="row"><span>Forma</span><strong>${esc(s.pag||'')}</strong></div><div class="actions"><button class="gold" onclick="event.stopPropagation();editSale(${sales.indexOf(s)})">EDITAR PAGAMENTO</button></div></div></div>`;
+  const total=sales.reduce((a,s)=>a+Number(s.total||0),0);
+  const received=sales.reduce((a,s)=>a+Number(s.pago||0),0);
+  const openSales=sales.filter(s=>Number(s.pago||0)<Number(s.total||0));
+  $('payFat').textContent=brl(total);
+  $('payRec').textContent=brl(received);
+  $('payPend').textContent=brl(Math.max(0,total-received));
+  $('payOpen').textContent=openSales.length;
+
+  const productsOf=s=>{
+    if(Array.isArray(s.items)&&s.items.length) return s.items.map(x=>`${x.produto||x.nome||''}${x.qtd>1?' × '+x.qtd:''}`).join(' + ');
+    return s.produto||'Venda';
   };
-  $('paidList').innerHTML=sales.filter(s=>Number(s.pago||0)>=Number(s.total||0)&&Number(s.total||0)>0).map(card).join('')||'<div class="empty">Nenhum pagamento concluído.</div>';
-  $('partialList').innerHTML=sales.filter(s=>Number(s.pago||0)>0&&Number(s.pago||0)<Number(s.total||0)).map(card).join('')||'<div class="empty">Nenhuma venda parcial.</div>';
-  $('pendingList').innerHTML=sales.filter(s=>Number(s.pago||0)===0).map(card).join('')||'<div class="empty">Nenhuma venda pendente.</div>';
+  const paymentCard=s=>{
+    const total=Number(s.total||0), paid=Number(s.pago||0), due=Math.max(0,total-paid);
+    const status=paid>=total&&total>0?'Pago':paid>0?'Parcial':'Pendente';
+    return `<div class="item" onclick="toggleItem(this)">
+      <strong>${esc(s.cliente||'Cliente')} — ${brl(total)}</strong>
+      <small>${esc(productsOf(s))} · ${status} · ${due>0?'Falta '+brl(due):'Quitado'}</small>
+      <div class="editbox">
+        <div class="row"><span>Total da venda</span><strong>${brl(total)}</strong></div>
+        <div class="row"><span>Já pago</span><strong>${brl(paid)}</strong></div>
+        <div class="row"><span>Falta</span><strong>${brl(due)}</strong></div>
+        <div class="row"><span>Forma de pagamento</span><strong>${esc(s.pag||s.formaPagamento||'—')}</strong></div>
+        <div class="actions"><button class="gold" onclick="event.stopPropagation();editSale(${sales.indexOf(s)})">EDITAR PAGAMENTO</button></div>
+      </div>
+    </div>`;
+  };
+
+  $('paidList').innerHTML=sales.filter(s=>Number(s.total||0)>0&&Number(s.pago||0)>=Number(s.total||0)).map(paymentCard).join('')||'<div class="empty">Nenhuma venda paga.</div>';
+  $('partialList').innerHTML=sales.filter(s=>Number(s.pago||0)>0&&Number(s.pago||0)<Number(s.total||0)).map(paymentCard).join('')||'<div class="empty">Nenhuma venda parcial.</div>';
+  $('pendingList').innerHTML=sales.filter(s=>Number(s.pago||0)===0).map(paymentCard).join('')||'<div class="empty">Nenhuma venda pendente.</div>';
 
   const qty=products.reduce((a,p)=>a+Number(p.estoque||0),0);
   const sale=products.reduce((a,p)=>a+Number(p.estoque||0)*Number(p.preco||0),0);
   const cost=products.reduce((a,p)=>a+Number(p.estoque||0)*Number(p.custo||0),0);
-  $('stockQty').textContent=qty; $('stockSale').textContent=brl(sale); $('stockCost').textContent=brl(cost); $('stockProfit').textContent=brl(sale-cost);
-  $('stockList').innerHTML=products.filter(p=>Number(p.estoque||0)>0).map((p,i)=>{
+  $('stockQty').textContent=qty;
+  $('stockSale').textContent=brl(sale);
+  $('stockCost').textContent=brl(cost);
+  $('stockProfit').textContent=brl(sale-cost);
+  $('stockList').innerHTML=products.filter(p=>Number(p.estoque||0)>0).map(p=>{
     const v=Number(p.estoque||0)*Number(p.preco||0), c=Number(p.estoque||0)*Number(p.custo||0);
-    return `<div class="item" onclick="toggleItem(this)"><strong>${esc(p.nome)} · ${esc(p.tam)}</strong><small>${p.estoque} un. · Venda ${brl(p.preco)} · Valor em estoque ${brl(v)}</small><div class="editbox"><div class="row"><span>Custo total</span><strong>${brl(c)}</strong></div><div class="row"><span>Valor para vender</span><strong>${brl(v)}</strong></div><div class="row"><span>Lucro potencial</span><strong>${brl(v-c)}</strong></div></div></div>`;
+    return `<div class="item" onclick="toggleItem(this)"><strong>${esc(p.nome)} · ${esc(p.tam||'')}</strong><small>${p.estoque} un. · Venda ${brl(p.preco)} · Valor em estoque ${brl(v)}</small><div class="editbox"><div class="row"><span>Custo total</span><strong>${brl(c)}</strong></div><div class="row"><span>Valor para vender</span><strong>${brl(v)}</strong></div><div class="row"><span>Lucro potencial</span><strong>${brl(v-c)}</strong></div></div></div>`;
   }).join('')||'<div class="empty">Nenhum produto em estoque.</div>';
 }
 function compactLists(){
