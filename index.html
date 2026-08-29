@@ -8,7 +8,7 @@
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f3f0e9;color:#171717;font-family:Arial,sans-serif;padding-bottom:78px}
 .wrap{max-width:620px;margin:auto;padding:18px 15px}.brand{text-align:center;margin:6px 0 20px}.logo{font:700 30px Georgia,serif;letter-spacing:2px}.sub{font-size:10px;letter-spacing:4px;color:#9a783d}
-nav{position:fixed;bottom:0;left:0;right:0;background:#171717;display:flex;justify-content:center;z-index:10}nav button{flex:1;max-width:125px;background:none;color:#ddd;border:0;padding:9px 3px;font-size:10px}nav b{display:block;font-size:19px;margin-bottom:2px}nav button.active{color:#e4c477}
+nav{position:fixed;bottom:0;left:0;right:0;background:#171717;display:flex;justify-content:flex-start;overflow-x:auto;z-index:10}nav button{flex:0 0 82px;max-width:110px;background:none;color:#ddd;border:0;padding:9px 3px;font-size:10px}nav b{display:block;font-size:19px;margin-bottom:2px}nav button.active{color:#e4c477}
 .page{display:none}.page.active{display:block}.card{background:#fff;border-radius:19px;padding:18px;margin:12px 0;box-shadow:0 7px 24px #00000010}h2{font-size:17px;margin:0 0 15px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{margin-bottom:12px}label{font-size:12px;font-weight:700;display:block;margin-bottom:6px}
 input,select{width:100%;padding:12px;border:1px solid #ddd5c8;border-radius:11px;background:#fbfaf8;font-size:16px}button{border:0;border-radius:11px;padding:12px;font-weight:700;cursor:pointer}
@@ -16,14 +16,14 @@ input,select{width:100%;padding:12px;border:1px solid #ddd5c8;border-radius:11px
 .quick{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.q{background:#eee8dc}.q.active{background:#9d7a3d;color:white}
 .result{background:#171717;color:#fff;border-radius:19px;padding:19px}.row{display:flex;justify-content:space-between;padding:7px 0;color:#ddd}.big{font-size:34px;color:#e4c477;font-weight:900}.line{border-top:1px solid #444;margin-top:10px;padding-top:12px}
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kpi{background:#171717;color:#fff;border-radius:16px;padding:15px}.kpi span{display:block;color:#bbb;font-size:11px}.kpi strong{display:block;font-size:20px;margin-top:5px}
-.item{border:1px solid #e3ddd2;border-radius:13px;padding:12px;margin:8px 0;background:#fff}.item strong{display:block}.item small{color:#777}.danger{background:#eee;color:#8a2d2d;padding:8px 10px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.actions button{padding:8px 10px;font-size:12px}
+.item{border:1px solid #e4ded4;border-radius:16px;padding:0;margin:9px 0;background:#fff;overflow:hidden;box-shadow:0 3px 12px #00000008}.item>strong{display:block;padding:14px 15px 4px;font-size:14px}.item>small{display:block;color:#777;padding:0 15px 13px}.item .editbox{margin:0;border-radius:0;border-top:1px solid #eee7dc}.item .editbox{display:none}.item.open .editbox{display:block}.item>strong:after{content:'⌄';float:right;color:#9d7a3d;font-size:18px;transition:.15s}.item.open>strong:after{transform:rotate(180deg)}.danger{background:#eee;color:#8a2d2d;padding:8px 10px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.actions button{padding:8px 10px;font-size:12px}
 .empty{text-align:center;color:#777;padding:18px}.toast{position:fixed;top:15px;left:50%;transform:translateX(-50%);background:#171717;color:#fff;padding:11px 16px;border-radius:10px;display:none;z-index:30}
 @media(max-width:390px){.grid{grid-template-columns:1fr}.quick{grid-template-columns:repeat(3,1fr)}}
 .save-indicator{position:fixed;top:10px;right:10px;background:#171717;color:#e4c477;padding:7px 10px;border-radius:99px;font-size:10px;z-index:40;opacity:.9}.cart{margin-top:10px}.cart-item{background:#f7f4ee;border:1px solid #ddd3c2;border-radius:12px;padding:10px;margin:7px 0}.cart-total{font-size:20px;font-weight:900;margin-top:10px}.editbox{background:#f7f4ee;border-radius:14px;padding:12px;margin-top:10px}.mini{width:auto!important;padding:8px 10px!important}.addline{display:grid;grid-template-columns:1fr 80px 110px auto;gap:7px;align-items:end}@media(max-width:480px){.addline{grid-template-columns:1fr 70px 95px}.addline button{grid-column:1/-1}}
 </style></head>
 <body>
 <div class="toast" id="toast"></div><div id="saveIndicator" class="save-indicator">● SALVO</div>
-<div class="wrap"><div class="brand"><div class="logo">OLIVER PARFUM</div><div class="sub">GESTÃO DA LOJA</div></div>
+<div class="wrap"><div class="brand"><div class="logo">OLIVER PARFUM</div><div class="sub">GESTÃO DA LOJA</div><div style="font-size:11px;color:#777;margin-top:7px">Controle simples, elegante e sempre salvo</div></div>
 
 <section id="painel" class="page active">
 <div class="kpis">
@@ -74,8 +74,31 @@ input,select{width:100%;padding:12px;border:1px solid #ddd5c8;border-radius:11px
 <div class="field"><label>Valor pago</label><input id="v_pago" inputmode="decimal" value="0"></div><button class="primary" onclick="addSaleMulti()">REGISTRAR VENDA</button></div><div class="card"><h2>Vendas</h2><div id="salesList"></div></div></section>
 </div>
 
+
+<section id="pagamentos" class="page">
+<div class="card"><h2>Controle de pagamentos</h2>
+<div class="kpis">
+<div class="kpi"><span>Total vendido</span><strong id="payFat">R$ 0,00</strong></div>
+<div class="kpi"><span>Recebido</span><strong id="payRec">R$ 0,00</strong></div>
+<div class="kpi"><span>A receber</span><strong id="payPend">R$ 0,00</strong></div>
+<div class="kpi"><span>Vendas em aberto</span><strong id="payOpen">0</strong></div>
+</div></div>
+<div class="card"><h2>🟢 Pagos</h2><div id="paidList"></div></div>
+<div class="card"><h2>🟡 Parciais</h2><div id="partialList"></div></div>
+<div class="card"><h2>🔴 Pendentes</h2><div id="pendingList"></div></div>
+</section>
+<section id="estoque" class="page">
+<div class="card"><h2>Estoque</h2>
+<div class="kpis">
+<div class="kpi"><span>Unidades</span><strong id="stockQty">0</strong></div>
+<div class="kpi"><span>Valor de venda</span><strong id="stockSale">R$ 0,00</strong></div>
+<div class="kpi"><span>Custo</span><strong id="stockCost">R$ 0,00</strong></div>
+<div class="kpi"><span>Lucro potencial</span><strong id="stockProfit">R$ 0,00</strong></div>
+</div></div>
+<div class="card"><h2>Produtos em estoque</h2><div id="stockList"></div></div>
+</section>
 <nav>
-<button class="active" data-page="painel"><b>📊</b>Painel</button><button data-page="calculadora"><b>🧮</b>Calcular</button><button data-page="produtos"><b>📦</b>Produtos</button><button data-page="clientes"><b>👥</b>Clientes</button><button data-page="vendas"><b>🛒</b>Vendas</button>
+<button class="active" data-page="painel"><b>📊</b>Painel</button><button data-page="calculadora"><b>🧮</b>Calcular</button><button data-page="produtos"><b>📦</b>Produtos</button><button data-page="clientes"><b>👥</b>Clientes</button><button data-page="vendas"><b>🛒</b>Vendas</button><button data-page="pagamentos"><b>💳</b>Pagamentos</button><button data-page="estoque"><b>📦</b>Estoque</button>
 </nav>
 <script>
 const brl=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v||0);
@@ -166,6 +189,39 @@ $('productList').innerHTML=products.map((p,i)=>`<div class="item"><strong>${esc(
 $('clientList').innerHTML=clients.map((c,i)=>`<div class="item"><strong>${esc(c.nome)}</strong><div class="editbox"><div class="field"><label>Nome</label><input id="ce_nome_${i}" value="${esc(c.nome)}"></div><div class="grid"><div><label>Contato</label><input id="ce_tel_${i}" value="${esc(c.tel||'')}"></div><div><label>Cidade</label><input id="ce_cidade_${i}" value="${esc(c.cidade||'')}"></div></div><div class="field"><label>Observações</label><input id="ce_obs_${i}" value="${esc(c.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateClient(${i})">SALVAR CLIENTE</button><button class="danger" onclick="removeClient(${i})">REMOVER</button></div></div></div>`).join('')||'<div class="empty">Nenhum cliente</div>';
 $('v_cliente').innerHTML=clients.map(c=>`<option>${esc(c.nome)}</option>`).join('');$('v_produto').innerHTML=products.map((p,i)=>`<option value="${i}">${esc(p.nome)} • ${esc(p.tam)} — ${brl(p.preco)} · estoque ${p.estoque||0}</option>`).join('');let fat=sales.reduce((a,s)=>a+s.total,0),rec=sales.reduce((a,s)=>a+s.pago,0);$('kFat').textContent=brl(fat);$('kRec').textContent=brl(rec);$('kPend').textContent=brl(fat-rec);$('kVendas').textContent=sales.length;$('investido').textContent=brl(investment);$('roi').textContent=brl(fat-investment);if($('investimentoEdit'))$('investimentoEdit').value=investment.toFixed(2).replace('.',',');$('ultimas').innerHTML=sales.slice(0,5).map(s=>`<div class="item"><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · ${brl(s.total)} · ${s.status}</small></div>`).join('')||'<div class="empty">Nenhuma venda</div>';$('salesList').innerHTML=sales.map((s,i)=>`<div class="item"><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · Total ${brl(s.total)} · Pago ${brl(s.pago)} · ${esc(s.pag)}</small><div class="actions"><button class="gold" onclick="editSale(${i})">EDITAR PAGAMENTO</button><button class="danger" onclick="removeSale(${i})">REMOVER VENDA</button></div></div>`).join('')||'<div class="empty">Nenhuma venda</div>'}
 
+
+function toggleItem(el){el.classList.toggle('open')}
+function renderPaymentAndStock(){
+  const fat=sales.reduce((a,s)=>a+Number(s.total||0),0);
+  const rec=sales.reduce((a,s)=>a+Number(s.pago||0),0);
+  const open=sales.filter(s=>Number(s.pago||0)<Number(s.total||0));
+  $('payFat').textContent=brl(fat); $('payRec').textContent=brl(rec); $('payPend').textContent=brl(fat-rec); $('payOpen').textContent=open.length;
+  const card=s=>{
+    const falta=Math.max(0,Number(s.total||0)-Number(s.pago||0));
+    return `<div class="item" onclick="toggleItem(this)"><strong>${esc(s.cliente)} — ${brl(s.total)}</strong><small>${esc(s.data||'')} · Pago: ${brl(s.pago||0)} · Falta: ${brl(falta)}</small><div class="editbox"><div class="row"><span>Produtos</span><strong>${esc(s.produto||((s.items||[]).map(x=>x.produto).join(' + ')))}</strong></div><div class="row"><span>Forma</span><strong>${esc(s.pag||'')}</strong></div><div class="actions"><button class="gold" onclick="event.stopPropagation();editSale(${sales.indexOf(s)})">EDITAR PAGAMENTO</button></div></div></div>`;
+  };
+  $('paidList').innerHTML=sales.filter(s=>Number(s.pago||0)>=Number(s.total||0)&&Number(s.total||0)>0).map(card).join('')||'<div class="empty">Nenhum pagamento concluído.</div>';
+  $('partialList').innerHTML=sales.filter(s=>Number(s.pago||0)>0&&Number(s.pago||0)<Number(s.total||0)).map(card).join('')||'<div class="empty">Nenhuma venda parcial.</div>';
+  $('pendingList').innerHTML=sales.filter(s=>Number(s.pago||0)===0).map(card).join('')||'<div class="empty">Nenhuma venda pendente.</div>';
+
+  const qty=products.reduce((a,p)=>a+Number(p.estoque||0),0);
+  const sale=products.reduce((a,p)=>a+Number(p.estoque||0)*Number(p.preco||0),0);
+  const cost=products.reduce((a,p)=>a+Number(p.estoque||0)*Number(p.custo||0),0);
+  $('stockQty').textContent=qty; $('stockSale').textContent=brl(sale); $('stockCost').textContent=brl(cost); $('stockProfit').textContent=brl(sale-cost);
+  $('stockList').innerHTML=products.filter(p=>Number(p.estoque||0)>0).map((p,i)=>{
+    const v=Number(p.estoque||0)*Number(p.preco||0), c=Number(p.estoque||0)*Number(p.custo||0);
+    return `<div class="item" onclick="toggleItem(this)"><strong>${esc(p.nome)} · ${esc(p.tam)}</strong><small>${p.estoque} un. · Venda ${brl(p.preco)} · Valor em estoque ${brl(v)}</small><div class="editbox"><div class="row"><span>Custo total</span><strong>${brl(c)}</strong></div><div class="row"><span>Valor para vender</span><strong>${brl(v)}</strong></div><div class="row"><span>Lucro potencial</span><strong>${brl(v-c)}</strong></div></div></div>`;
+  }).join('')||'<div class="empty">Nenhum produto em estoque.</div>';
+}
+function compactLists(){
+  document.querySelectorAll('#productList .item,#clientList .item,#salesList .item,#ultimas .item').forEach(el=>{
+    el.onclick=function(e){
+      if(e.target.closest('button,input,select')) return;
+      el.classList.toggle('open');
+    };
+  });
+}
+
 async function exportBackup(){
   const data={
     app:"Oliver Parfum",
@@ -204,7 +260,7 @@ function importBackup(ev){
   reader.readAsText(file);
 }
 
-$('v_produto').onchange=()=>{let p=products[+$('v_produto').value];$('v_valor').value=p?.preco||0};renderAll();calc();renderCart();
+$('v_produto').onchange=()=>{let p=products[+$('v_produto').value];$('v_valor').value=p?.preco||0};renderAll();calc();renderPaymentAndStock();renderCart();
 $('v_produto').onchange=()=>{let p=products[+$('v_produto').value];$('v_valor').value=p?.preco||0};
 renderAll();calc();
 if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});} </script>
