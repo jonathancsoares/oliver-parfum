@@ -1,4 +1,4 @@
-const CACHE_NAME="oliver-parfum-v28";
+const CACHE_NAME="oliver-parfum-v281";
 const APP_SHELL=["./","./index.html","./manifest.json","./icon.svg"];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(APP_SHELL)))});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});

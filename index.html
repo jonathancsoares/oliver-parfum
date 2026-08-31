@@ -303,6 +303,34 @@ function renderCart(){
 function addSaleMulti(){let cliente=$('v_cliente').value;if(!cliente||!saleCart.length)return toast('Selecione cliente e adicione produtos');let total=saleCart.reduce((a,x)=>a+x.qtd*x.unit,0),pago=Math.min(total,Math.max(0,num($('v_pago').value))),items=[];for(let x of saleCart){let p=products[x.pi];if(x.qtd>Number(p.estoque||0))return toast('Estoque insuficiente: '+p.nome);p.estoque-=x.qtd;items.push({produto:p.nome,tam:p.tam,qtd:x.qtd,unit:x.unit,precoNormal:x.normal,custo:p.custo,pi:x.pi,desconto:Number(x.normal||0)-Number(x.unit||0)})}sales.unshift({id:Date.now(),data:new Date().toLocaleDateString('pt-BR'),cliente,items,produto:items.map(x=>x.produto).join(' + '),tam:items.map(x=>x.tam).join(' + '),qtd:items.reduce((a,x)=>a+x.qtd,0),unit:0,total,pag:$('v_pag').value,status:pago>=total?'Pago':pago>0?'Parcial':$('v_status').value,pago});saleCart=[];saveAll();renderAll();renderCart();$('v_pago').value='0';toast('Venda registrada ✓');}
 function editSale(i){let s=sales[i],pago=prompt('Valor pago',String(s.pago||0).replace('.',','));if(pago===null)return;s.pago=Math.min(s.total,Math.max(0,num(pago)));s.status=s.pago>=s.total?'Pago':s.pago>0?'Parcial':'Pendente';saveAll();renderAll();toast('Venda atualizada ✓')}
 function removeSale(i){if(!confirm('Remover esta venda? O estoque será devolvido.'))return;let s=sales[i];let items=s.items||[{produto:s.produto,tam:s.tam,qtd:s.qtd}];items.forEach(x=>{let p=products.find(p=>p.nome===x.produto&&p.tam===x.tam)||products.find(p=>p.nome===x.produto);if(p)p.estoque=Number(p.estoque||0)+Number(x.qtd||0)});sales.splice(i,1);saveAll();renderAll();toast('Venda removida ✓')}
+
+function editProduct(i){
+  const p=products[i];
+  if(!p)return;
+  const name=prompt('Nome do produto',p.nome??''); if(name===null)return;
+  const tam=prompt('Tamanho / volume',p.tam??''); if(tam===null)return;
+  const preco=prompt('Preço de venda',String(p.preco??'').replace('.',',')); if(preco===null)return;
+  const custo=prompt('Custo do produto',String(p.custo??'').replace('.',',')); if(custo===null)return;
+  const estoque=prompt('Estoque',String(p.estoque??0)); if(estoque===null)return;
+  p.nome=name.trim()||p.nome;
+  p.tam=tam.trim();
+  p.preco=Math.max(0,num(preco));
+  p.custo=Math.max(0,num(custo));
+  p.estoque=Math.max(0,Math.floor(num(estoque)));
+  save();
+  renderAll();
+  toast('Produto atualizado');
+}
+function deleteProduct(i){
+  const p=products[i];
+  if(!p)return;
+  if(!confirm('Remover '+(p.nome||'este produto')+' do cadastro?'))return;
+  products.splice(i,1);
+  save();
+  renderAll();
+  toast('Produto removido');
+}
+
 function renderAll(){
 $('productList').innerHTML=products.map((p,i)=>`<div class="item"><strong>${esc(p.nome)} • ${esc(p.tam)}</strong><small>Estoque: ${p.estoque||0} · Custo: ${brl(p.custo)} · Venda: ${brl(p.preco)}</small><div class="editbox"><div class="grid"><div><label>Nome</label><input id="pe_nome_${i}" value="${esc(p.nome)}"></div><div><label>Tamanho</label><input id="pe_tam_${i}" value="${esc(p.tam)}"></div><div><label>Categoria</label><input id="pe_cat_${i}" value="${esc(p.cat)}"></div><div><label>Custo</label><input id="pe_custo_${i}" inputmode="decimal" value="${moneyInput(p.custo)}"></div><div><label>Preço</label><input id="pe_preco_${i}" inputmode="decimal" value="${moneyInput(p.preco)}"></div><div><label>Estoque</label><input id="pe_estoque_${i}" type="number" value="${p.estoque||0}"></div></div><div class="field"><label>Observações</label><input id="pe_obs_${i}" value="${esc(p.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateProduct(${i})">SALVAR PRODUTO</button><button class="danger" onclick="removeProduct(${i})">REMOVER</button></div></div></div>`).join('')||'<div class="empty">Nenhum produto</div>';
 $('clientList').innerHTML=clients.map((c,i)=>`<div class="item"><strong>${esc(c.nome)}</strong><div class="editbox"><div class="field"><label>Nome</label><input id="ce_nome_${i}" value="${esc(c.nome)}"></div><div class="grid"><div><label>Contato</label><input id="ce_tel_${i}" value="${esc(c.tel||'')}"></div><div><label>Cidade</label><input id="ce_cidade_${i}" value="${esc(c.cidade||'')}"></div></div><div class="field"><label>Observações</label><input id="ce_obs_${i}" value="${esc(c.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateClient(${i})">SALVAR CLIENTE</button><button class="danger" onclick="removeClient(${i})">REMOVER</button></div></div></div>`).join('')||'<div class="empty">Nenhum cliente</div>';
