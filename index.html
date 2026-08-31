@@ -144,8 +144,8 @@ a{
 
 <section id="vendas" class="page"><div class="card"><h2>Nova venda</h2>
 <div class="field"><label>Cliente</label><select id="v_cliente"></select></div>
-<div class="addline"><div><label>Produto</label><select id="v_produto"></select></div><div><label>Qtd.</label><input id="v_qtd" type="number" value="1" min="1"></div><div><label>Valor unit.</label><input id="v_valor" inputmode="decimal"></div><button class="gold mini" onclick="addCartItem()">+ PRODUTO</button></div>
-<div id="saleCart" class="cart"></div><div class="row"><span>Total da venda</span><strong id="saleCartTotal">R$ 0,00</strong></div>
+<div class="addline"><div><label>Produto</label><select id="v_produto"></select></div><div><label>Qtd.</label><input id="v_qtd" type="number" value="1" min="1"></div><div><label>Preço da venda</label><input id="v_valor" inputmode="decimal" placeholder="Pode dar desconto"></div><button class="gold mini" onclick="addCartItem()">+ PRODUTO</button></div>
+<div id="saleCart" class="cart"></div><div class="row"><span>Preço normal</span><strong id="cartNormalTotal">R$ 0,00</strong></div><div class="row"><span>Desconto aplicado</span><strong id="cartDiscount">R$ 0,00</strong></div><div class="row"><span>Total da venda</span><strong id="saleCartTotal">R$ 0,00</strong></div>
 <div class="grid"><div class="field"><label>Forma de pagamento</label><select id="v_pag"><option>Pix</option><option>Dinheiro</option><option>Débito</option><option>Crédito</option><option>Parcelado</option><option>A pagar</option></select></div><div class="field"><label>Status</label><select id="v_status"><option>Pago</option><option>Pendente</option><option>Parcial</option></select></div></div>
 <div class="field"><label>Valor pago</label><input id="v_pago" inputmode="decimal" value="0"></div><button class="primary" onclick="addSaleMulti()">REGISTRAR VENDA</button></div><div class="card"><h2>Vendas</h2><div id="salesList"></div></div></section>
 </div>
@@ -269,11 +269,38 @@ function updateSale(i){
 
 let saleCart=[];
 function saveAll(){store.set('products',products);store.set('clients',clients);store.set('sales',sales);localStorage.setItem('investment',String(investment));const x=$('saveIndicator');if(x){x.textContent='● SALVANDO...';setTimeout(()=>x.textContent='● SALVO',120);}}
-function addCartItem(){let pi=+$('v_produto').value,p=products[pi],q=Math.max(1,Math.floor(num($('v_qtd').value))),u=num($('v_valor').value)||p?.preco||0;if(!p)return toast('Selecione um produto');let ex=saleCart.find(x=>x.pi===pi);let nq=(ex?.qtd||0)+q;if(nq>Number(p.estoque||0))return toast('Estoque insuficiente');if(ex){ex.qtd=nq;ex.unit=u}else saleCart.push({pi,qtd:q,unit:u});renderCart();}
+function addCartItem(){
+  let pi=+$('v_produto').value,p=products[pi],q=Math.max(1,Math.floor(num($('v_qtd').value)));
+  if(!p)return toast('Selecione um produto');
+  let normal=Number(p.preco||0),raw=$('v_valor').value;
+  let u=raw===''?normal:Math.max(0,num(raw));
+  let ex=saleCart.find(x=>x.pi===pi),nq=(ex?.qtd||0)+q;
+  if(nq>Number(p.estoque||0))return toast('Estoque insuficiente');
+  if(ex){ex.qtd=nq;ex.unit=u;ex.normal=normal}else saleCart.push({pi,qtd:q,unit:u,normal});
+  renderCart();
+}
 function removeCartItem(i){saleCart.splice(i,1);renderCart()}
-function editCartItem(i){let x=saleCart[i],p=products[x.pi];let q=prompt('Quantidade',x.qtd);if(q===null)return;let u=prompt('Valor unitário',String(x.unit).replace('.',','));if(u===null)return;q=Math.max(1,Math.floor(num(q)));u=Math.max(0,num(u));if(q>p.estoque)return toast('Estoque insuficiente');x.qtd=q;x.unit=u;renderCart()}
-function renderCart(){let total=saleCart.reduce((a,x)=>a+x.qtd*x.unit,0);$('saleCartTotal').textContent=brl(total);$('saleCart').innerHTML=saleCart.map((x,i)=>{let p=products[x.pi];return `<div class="cart-item"><div class="row"><strong>${esc(p.nome)} • ${esc(p.tam)}</strong><strong>${brl(x.qtd*x.unit)}</strong></div><small>${x.qtd} × ${brl(x.unit)}</small><div class="actions"><button class="gold" onclick="editCartItem(${i})">EDITAR</button><button class="danger" onclick="removeCartItem(${i})">REMOVER</button></div></div>`}).join('')||'<div class="empty">Adicione um ou mais produtos à venda</div>'}
-function addSaleMulti(){let cliente=$('v_cliente').value;if(!cliente||!saleCart.length)return toast('Selecione cliente e adicione produtos');let total=saleCart.reduce((a,x)=>a+x.qtd*x.unit,0),pago=Math.min(total,Math.max(0,num($('v_pago').value))),items=[];for(let x of saleCart){let p=products[x.pi];if(x.qtd>Number(p.estoque||0))return toast('Estoque insuficiente: '+p.nome);p.estoque-=x.qtd;items.push({produto:p.nome,tam:p.tam,qtd:x.qtd,unit:x.unit,custo:p.custo,pi:x.pi})}sales.unshift({id:Date.now(),data:new Date().toLocaleDateString('pt-BR'),cliente,items,produto:items.map(x=>x.produto).join(' + '),tam:items.map(x=>x.tam).join(' + '),qtd:items.reduce((a,x)=>a+x.qtd,0),unit:0,total,pag:$('v_pag').value,status:pago>=total?'Pago':pago>0?'Parcial':$('v_status').value,pago});saleCart=[];saveAll();renderAll();renderCart();$('v_pago').value='0';toast('Venda registrada ✓');}
+function editCartItem(i){
+  let x=saleCart[i],p=products[x.pi];
+  let q=prompt('Quantidade',x.qtd);if(q===null)return;
+  let u=prompt('Preço unitário da venda\nPreço normal: '+moneyInput(x.normal),String(x.unit).replace('.',','));if(u===null)return;
+  q=Math.max(1,Math.floor(num(q)));u=Math.max(0,num(u));
+  if(q>Number(p.estoque||0))return toast('Estoque insuficiente');
+  x.qtd=q;x.unit=u;renderCart();
+}
+function renderCart(){
+  let normalTotal=saleCart.reduce((a,x)=>a+x.qtd*x.normal,0);
+  let total=saleCart.reduce((a,x)=>a+x.qtd*x.unit,0);
+  if($('cartNormalTotal'))$('cartNormalTotal').textContent=brl(normalTotal);
+  if($('cartDiscount'))$('cartDiscount').textContent=brl(Math.max(0,normalTotal-total));
+  $('saleCartTotal').textContent=brl(total);
+  $('saleCart').innerHTML=saleCart.map((x,i)=>{
+    let p=products[x.pi],discount=Math.max(0,x.normal-x.unit);
+    return `<div class="cart-item"><div class="row"><strong>${esc(p.nome)} • ${esc(p.tam)}</strong><strong>${brl(x.qtd*x.unit)}</strong></div><small>${x.qtd} × ${brl(x.unit)}${discount>0?' · desconto '+brl(discount)+' por unidade':''}</small>${discount>0?`<small style="display:block;color:#8e6b34">Preço normal: ${brl(x.normal)} · Promoção: ${brl(x.unit)}</small>`:''}<div class="actions"><button class="gold" onclick="editCartItem(${i})">EDITAR</button><button class="danger" onclick="removeCartItem(${i})">REMOVER</button></div></div>`
+  }).join('')||'<div class="empty">Adicione um ou mais produtos à venda</div>';
+}
+
+function addSaleMulti(){let cliente=$('v_cliente').value;if(!cliente||!saleCart.length)return toast('Selecione cliente e adicione produtos');let total=saleCart.reduce((a,x)=>a+x.qtd*x.unit,0),pago=Math.min(total,Math.max(0,num($('v_pago').value))),items=[];for(let x of saleCart){let p=products[x.pi];if(x.qtd>Number(p.estoque||0))return toast('Estoque insuficiente: '+p.nome);p.estoque-=x.qtd;items.push({produto:p.nome,tam:p.tam,qtd:x.qtd,unit:x.unit,precoNormal:x.normal,custo:p.custo,pi:x.pi,desconto:Number(x.normal||0)-Number(x.unit||0)})}sales.unshift({id:Date.now(),data:new Date().toLocaleDateString('pt-BR'),cliente,items,produto:items.map(x=>x.produto).join(' + '),tam:items.map(x=>x.tam).join(' + '),qtd:items.reduce((a,x)=>a+x.qtd,0),unit:0,total,pag:$('v_pag').value,status:pago>=total?'Pago':pago>0?'Parcial':$('v_status').value,pago});saleCart=[];saveAll();renderAll();renderCart();$('v_pago').value='0';toast('Venda registrada ✓');}
 function editSale(i){let s=sales[i],pago=prompt('Valor pago',String(s.pago||0).replace('.',','));if(pago===null)return;s.pago=Math.min(s.total,Math.max(0,num(pago)));s.status=s.pago>=s.total?'Pago':s.pago>0?'Parcial':'Pendente';saveAll();renderAll();toast('Venda atualizada ✓')}
 function removeSale(i){if(!confirm('Remover esta venda? O estoque será devolvido.'))return;let s=sales[i];let items=s.items||[{produto:s.produto,tam:s.tam,qtd:s.qtd}];items.forEach(x=>{let p=products.find(p=>p.nome===x.produto&&p.tam===x.tam)||products.find(p=>p.nome===x.produto);if(p)p.estoque=Number(p.estoque||0)+Number(x.qtd||0)});sales.splice(i,1);saveAll();renderAll();toast('Venda removida ✓')}
 function renderAll(){

@@ -1,7 +1,6 @@
 {
   "name": "Oliver Parfum",
   "short_name": "Oliver Parfum",
-  "description": "Gestão de produtos, clientes, vendas, pagamentos e estoque da Oliver Parfum.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
