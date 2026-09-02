@@ -142,6 +142,13 @@ a{
 <div class="field"><label>Nome</label><input id="cl_nome"></div><div class="grid"><div class="field"><label>WhatsApp/Contato</label><input id="cl_tel"></div><div class="field"><label>Cidade</label><input id="cl_cidade"></div></div><div class="field"><label>Observações</label><input id="cl_obs"></div>
 <button class="primary" onclick="addClient()">Adicionar cliente</button></div><div id="clientList"></div></section>
 
+<section id="encomendas" class="page"><div class="card"><h2>📋 Nova encomenda</h2>
+<div class="field"><label>Cliente</label><select id="en_cliente"></select></div>
+<div class="field"><label>Produto encomendado</label><input id="en_produto" placeholder="Ex.: Asad 100ml"></div>
+<div class="grid"><div class="field"><label>Quantidade</label><input id="en_qtd" type="number" value="1" min="1"></div><div class="field"><label>Valor combinado (opcional)</label><input id="en_valor" inputmode="decimal"></div></div>
+<div class="field"><label>Observações</label><input id="en_obs"></div>
+<button class="primary" onclick="addOrder()">Adicionar encomenda</button></div><div id="orderList"></div></section>
+
 <section id="vendas" class="page"><div class="card"><h2>Nova venda</h2>
 <div class="field"><label>Cliente</label><select id="v_cliente"></select></div>
 <div class="addline"><div><label>Produto</label><select id="v_produto"></select></div><div><label>Qtd.</label><input id="v_qtd" type="number" value="1" min="1"></div><div><label>Preço da venda</label><input id="v_valor" inputmode="decimal" placeholder="Pode dar desconto"></div><button class="gold mini" onclick="addCartItem()">+ PRODUTO</button></div>
@@ -190,7 +197,7 @@ a{
 <div class="card"><h2>Produtos em estoque</h2><div id="stockList"></div></div>
 </section>
 <nav>
-<button class="active" data-page="painel"><b>📊</b>Painel</button><button data-page="calculadora"><b>🧮</b>Calcular</button><button data-page="produtos"><b>📦</b>Produtos</button><button data-page="clientes"><b>👥</b>Clientes</button><button data-page="vendas"><b>🛒</b>Vendas</button><button data-page="pagamentos"><b>💳</b>Pagamentos</button><button data-page="estoque"><b>📦</b>Estoque</button>
+<button class="active" data-page="painel"><b>📊</b>Painel</button><button data-page="calculadora"><b>🧮</b>Calcular</button><button data-page="produtos"><b>📦</b>Produtos</button><button data-page="clientes"><b>👥</b>Clientes</button><button data-page="encomendas"><b>📋</b>Encomendas</button><button data-page="vendas"><b>🛒</b>Vendas</button><button data-page="pagamentos"><b>💳</b>Pagamentos</button><button data-page="estoque"><b>📦</b>Estoque</button>
 </nav>
 <script>
 const brl=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v||0);
@@ -198,6 +205,7 @@ const num=x=>{let s=(x||'').toString().replace(/\./g,'').replace(',','.').replac
 const $=id=>document.getElementById(id);
 const store={get:(k,d)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d)),set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
 let clients=store.get('clients',[{nome:'Valmira',tel:'',cidade:'',obs:''},{nome:'Glenda',tel:'',cidade:'',obs:''},{nome:'Thalia',tel:'',cidade:'',obs:''},{nome:'Luciene',tel:'',cidade:'',obs:''},{nome:'Marcos Mefsa',tel:'',cidade:'',obs:''},{nome:'Anderson Mefsa',tel:'',cidade:'',obs:''},{nome:'Eliane',tel:'',cidade:'',obs:''},{nome:'Simone',tel:'',cidade:'',obs:''},{nome:'Marcelo',tel:'',cidade:'',obs:''}]);
+let orders=store.get('orders',[]);
 let products=store.get('products',[{nome:'Charlota',tam:'25ml',cat:'Perfume',custo:0,preco:80,estoque:0,obs:''},{nome:'Amber',tam:'30ml',cat:'Perfume',custo:0,preco:135,estoque:0},{nome:'Baccarat Rouge',tam:'100ml',cat:'Perfume',custo:0,preco:380,estoque:0},{nome:'Delina de Marly',tam:'25ml',cat:'Perfume',custo:0,preco:0,estoque:0},{nome:'Le Moment (bolsinha)',tam:'25ml',cat:'Perfume',custo:0,preco:160,estoque:0},{nome:'Gaultier Divine',tam:'25ml',cat:'Perfume',custo:0,preco:0,estoque:0},{nome:'Silver Scent Intense',tam:'25ml',cat:'Perfume',custo:0,preco:70,estoque:0},{nome:'Angel Elixir',tam:'25ml',cat:'Perfume',custo:0,preco:70,estoque:0},{nome:'Scandal',tam:'25ml',cat:'Perfume',custo:0,preco:80,estoque:0},{nome:'Delina de Meliora',tam:'25ml',cat:'Perfume',custo:0,preco:0,estoque:0}]);
 let sales=store.get('sales',[{data:'',cliente:'Valmira',produto:'Charlota',tam:'25ml',qtd:1,unit:80,total:80,pag:'Pix',status:'Pago',pago:80},{data:'',cliente:'Glenda',produto:'Amber',tam:'30ml',qtd:1,unit:135,total:135,pag:'Pix',status:'Pago',pago:135},{data:'',cliente:'Thalia',produto:'Baccarat Rouge',tam:'100ml',qtd:1,unit:380,total:380,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Luciene',produto:'Le Moment (bolsinha)',tam:'25ml',qtd:1,unit:160,total:160,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Marcos Mefsa',produto:'Silver Scent Intense',tam:'25ml',qtd:1,unit:70,total:70,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Anderson Mefsa',produto:'Angel Elixir',tam:'25ml',qtd:1,unit:70,total:70,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Eliane',produto:'Scandal',tam:'25ml',qtd:1,unit:80,total:80,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Simone',produto:'Gaultier Divine',tam:'25ml',qtd:1,unit:80,total:80,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Marcelo',produto:'Scandal',tam:'25ml',qtd:1,unit:160,total:160,pag:'A pagar',status:'Pendente',pago:0}]);
 
@@ -246,6 +254,28 @@ function useProductInCalculator(i){
   $('c_frete').value='0,00';$('c_emb').value='0,00';$('c_outros').value='0,00';
   calc();toast('Produto carregado na calculadora ✓');
 }
+
+function addOrder(){
+  const cliente=$('en_cliente').value,produto=$('en_produto').value.trim();
+  if(!cliente)return toast('Selecione o cliente');
+  if(!produto)return toast('Informe o produto encomendado');
+  orders.unshift({data:new Date().toLocaleDateString('pt-BR'),cliente,produto,qtd:Math.max(1,Math.floor(num($('en_qtd').value))),valor:num($('en_valor').value),obs:$('en_obs').value,status:'Encomendada'});
+  store.set('orders',orders);
+  $('en_produto').value='';$('en_qtd').value='1';$('en_valor').value='';$('en_obs').value='';
+  renderAll();toast('Encomenda adicionada ✓');
+}
+function updateOrder(i){
+  const o=orders[i]; if(!o)return;
+  o.cliente=$('oe_cliente_'+i).value.trim(); o.produto=$('oe_produto_'+i).value.trim();
+  o.qtd=Math.max(1,Math.floor(num($('oe_qtd_'+i).value)));
+  o.valor=num($('oe_valor_'+i).value); o.obs=$('oe_obs_'+i).value;
+  store.set('orders',orders);renderAll();toast('Encomenda atualizada ✓');
+}
+function removeOrder(i){
+  if(!confirm('Remover esta encomenda?'))return;
+  orders.splice(i,1);store.set('orders',orders);renderAll();toast('Encomenda removida ✓');
+}
+
 function addProduct(){let nome=$('p_nome').value.trim();if(!nome)return toast('Informe o produto');products.push({nome,tam:$('p_tam').value,cat:$('p_cat').value,custo:num($('p_custo').value),preco:num($('p_preco').value),estoque:num($('p_estoque').value),obs:''});store.set('products',products);['p_nome','p_tam','p_custo','p_preco','p_obs'].forEach(x=>$(x).value='');renderAll();toast('Produto adicionado ✓')}
 function addClient(){let nome=$('cl_nome').value.trim();if(!nome)return toast('Informe o cliente');clients.push({nome,tel:$('cl_tel').value,cidade:$('cl_cidade').value,obs:$('cl_obs').value});store.set('clients',clients);['cl_nome','cl_tel','cl_cidade','cl_obs'].forEach(x=>$(x).value='');renderAll();toast('Cliente adicionado ✓')}
 function addSale(){let cliente=$('v_cliente').value,pi=$('v_produto').value,prod=products[+pi],q=Math.max(1,num($('v_qtd').value)),unit=num($('v_valor').value)||prod?.preco||0,total=q*unit,pago=num($('v_pago').value);if(!cliente||!prod)return toast('Selecione cliente e produto');if(q>Number(prod.estoque||0))return toast('Estoque insuficiente: disponível '+Number(prod.estoque||0));prod.estoque=Number(prod.estoque||0)-q;sales.unshift({data:new Date().toLocaleDateString('pt-BR'),cliente,produto:prod.nome,tam:prod.tam,qtd:q,unit,total,pag:$('v_pag').value,status:$('v_status').value,pago});store.set('products',products);store.set('sales',sales);$('v_pago').value='0';renderAll();toast('Venda registrada ✓ — estoque atualizado')}
@@ -332,8 +362,22 @@ function deleteProduct(i){
 }
 
 function renderAll(){
+
+$('en_cliente').innerHTML=clients.map(c=>`<option>${esc(c.nome)}</option>`).join('');
+$('orderList').innerHTML=orders.map((o,i)=>`<div class="item" onclick="toggleItem(this)">
+<strong>${esc(o.cliente)} — ${esc(o.produto)}</strong>
+<small>${o.qtd||1} un. · ${o.data||''}${o.valor?` · ${brl(o.valor)}`:''} · ${esc(o.status||'Encomendada')}</small>
+<div class="editbox" onclick="event.stopPropagation()">
+<div class="grid"><div class="field"><label>Cliente</label><input id="oe_cliente_${i}" value="${esc(o.cliente)}"></div>
+<div class="field"><label>Produto</label><input id="oe_produto_${i}" value="${esc(o.produto)}"></div>
+<div class="field"><label>Quantidade</label><input id="oe_qtd_${i}" type="number" value="${o.qtd||1}"></div>
+<div class="field"><label>Valor</label><input id="oe_valor_${i}" inputmode="decimal" value="${moneyInput(o.valor||0)}"></div></div>
+<div class="field"><label>Observações</label><input id="oe_obs_${i}" value="${esc(o.obs||'')}"></div>
+<div class="actions"><button class="gold" onclick="updateOrder(${i})">SALVAR</button><button class="danger" onclick="removeOrder(${i})">REMOVER</button></div>
+</div></div>`).join('')||'<div class="empty">Nenhuma encomenda cadastrada.</div>';
+
 $('productList').innerHTML=products.map((p,i)=>`<div class="item" onclick="toggleItem(this)"><strong>${esc(p.nome)} • ${esc(p.tam)}</strong><small>Estoque: ${p.estoque||0} · Custo: ${brl(p.custo)} · Venda: ${brl(p.preco)}</small><div class="editbox" onclick="event.stopPropagation()"><div class="grid"><div><label>Nome</label><input id="pe_nome_${i}" value="${esc(p.nome)}"></div><div><label>Tamanho</label><input id="pe_tam_${i}" value="${esc(p.tam)}"></div><div><label>Categoria</label><input id="pe_cat_${i}" value="${esc(p.cat)}"></div><div><label>Custo</label><input id="pe_custo_${i}" inputmode="decimal" value="${moneyInput(p.custo)}"></div><div><label>Preço</label><input id="pe_preco_${i}" inputmode="decimal" value="${moneyInput(p.preco)}"></div><div><label>Estoque</label><input id="pe_estoque_${i}" type="number" value="${p.estoque||0}"></div></div><div class="field"><label>Observações</label><input id="pe_obs_${i}" value="${esc(p.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateProduct(${i})">SALVAR PRODUTO</button><button class="danger" onclick="removeProduct(${i})">REMOVER</button></div></div></div>`).join('')||'<div class="empty">Nenhum produto</div>';
-$('clientList').innerHTML=clients.map((c,i)=>`<div class="item"><strong>${esc(c.nome)}</strong><div class="editbox"><div class="field"><label>Nome</label><input id="ce_nome_${i}" value="${esc(c.nome)}"></div><div class="grid"><div><label>Contato</label><input id="ce_tel_${i}" value="${esc(c.tel||'')}"></div><div><label>Cidade</label><input id="ce_cidade_${i}" value="${esc(c.cidade||'')}"></div></div><div class="field"><label>Observações</label><input id="ce_obs_${i}" value="${esc(c.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateClient(${i})">SALVAR CLIENTE</button><button class="danger" onclick="removeClient(${i})">REMOVER</button></div></div></div>`).join('')||'<div class="empty">Nenhum cliente</div>';
+$('clientList').innerHTML=clients.map((c,i)=>`<div class="item" onclick="toggleItem(this)"><strong>${esc(c.nome)}</strong><small>${esc(c.tel||"")} ${c.cidade?"· "+esc(c.cidade):""}</small><div class="editbox" onclick="event.stopPropagation()"><div class="field"><label>Nome</label><input id="ce_nome_${i}" value="${esc(c.nome)}"></div><div class="grid"><div><label>Contato</label><input id="ce_tel_${i}" value="${esc(c.tel||'')}"></div><div><label>Cidade</label><input id="ce_cidade_${i}" value="${esc(c.cidade||'')}"></div></div><div class="field"><label>Observações</label><input id="ce_obs_${i}" value="${esc(c.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateClient(${i})">SALVAR CLIENTE</button><button class="danger" onclick="removeClient(${i})">REMOVER</button></div></div></div>`).join('')||'<div class="empty">Nenhum cliente</div>';
 $('v_cliente').innerHTML=clients.map(c=>`<option>${esc(c.nome)}</option>`).join('');$('v_produto').innerHTML=products.map((p,i)=>`<option value="${i}">${esc(p.nome)} • ${esc(p.tam)} — ${brl(p.preco)} · estoque ${p.estoque||0}</option>`).join('');let fat=sales.reduce((a,s)=>a+s.total,0),rec=sales.reduce((a,s)=>a+s.pago,0);$('kFat').textContent=brl(fat);$('kRec').textContent=brl(rec);$('kPend').textContent=brl(fat-rec);$('kVendas').textContent=sales.length;$('investido').textContent=brl(investment);$('roi').textContent=brl(fat-investment);if($('investimentoEdit'))$('investimentoEdit').value=investment.toFixed(2).replace('.',',');$('ultimas').innerHTML=sales.slice(0,5).map(s=>`<div class="item"><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · ${brl(s.total)} · ${s.status}</small></div>`).join('')||'<div class="empty">Nenhuma venda</div>';$('salesList').innerHTML=sales.map((s,i)=>`<div class="item"><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · Total ${brl(s.total)} · Pago ${brl(s.pago)} · ${esc(s.pag)}</small><div class="actions"><button class="gold" onclick="editSale(${i})">EDITAR PAGAMENTO</button><button class="danger" onclick="removeSale(${i})">REMOVER VENDA</button></div></div>`).join('')||'<div class="empty">Nenhuma venda</div>'}
 
 
