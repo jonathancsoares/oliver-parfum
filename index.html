@@ -4,11 +4,11 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171717"><meta name="description" content="Gestão da Oliver Parfum">
 <link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg">
-<title>Oliver Parfum</title>
+<title>Oliver Parfum v2.7</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f3f0e9;color:#171717;font-family:Arial,sans-serif;padding-bottom:78px}
 .wrap{max-width:620px;margin:auto;padding:18px 15px}.brand{text-align:center;margin:6px 0 20px}.logo{font:700 30px Georgia,serif;letter-spacing:2px}.sub{font-size:10px;letter-spacing:4px;color:#9a783d}
-nav{position:fixed;bottom:0;left:0;right:0;background:#171717;display:flex;justify-content:flex-start;overflow-x:auto;z-index:10}nav button{flex:0 0 82px;max-width:110px;background:none;color:#ddd;border:0;padding:9px 3px;font-size:10px}nav b{display:block;font-size:19px;margin-bottom:2px}nav button.active{color:#e4c477}
+nav{position:fixed;bottom:0;left:0;right:0;background:#171717;display:flex;justify-content:center;z-index:10}nav button{flex:1;max-width:125px;background:none;color:#ddd;border:0;padding:9px 3px;font-size:10px}nav b{display:block;font-size:19px;margin-bottom:2px}nav button.active{color:#e4c477}
 .page{display:none}.page.active{display:block}.card{background:#fff;border-radius:19px;padding:18px;margin:12px 0;box-shadow:0 7px 24px #00000010}h2{font-size:17px;margin:0 0 15px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{margin-bottom:12px}label{font-size:12px;font-weight:700;display:block;margin-bottom:6px}
 input,select{width:100%;padding:12px;border:1px solid #ddd5c8;border-radius:11px;background:#fbfaf8;font-size:16px}button{border:0;border-radius:11px;padding:12px;font-weight:700;cursor:pointer}
@@ -16,90 +16,14 @@ input,select{width:100%;padding:12px;border:1px solid #ddd5c8;border-radius:11px
 .quick{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.q{background:#eee8dc}.q.active{background:#9d7a3d;color:white}
 .result{background:#171717;color:#fff;border-radius:19px;padding:19px}.row{display:flex;justify-content:space-between;padding:7px 0;color:#ddd}.big{font-size:34px;color:#e4c477;font-weight:900}.line{border-top:1px solid #444;margin-top:10px;padding-top:12px}
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kpi{background:#171717;color:#fff;border-radius:16px;padding:15px}.kpi span{display:block;color:#bbb;font-size:11px}.kpi strong{display:block;font-size:20px;margin-top:5px}
-.item{border:1px solid #e4ded4;border-radius:16px;padding:0;margin:9px 0;background:#fff;overflow:hidden;box-shadow:0 3px 12px #00000008}.item>strong{display:block;padding:14px 15px 4px;font-size:14px}.item>small{display:block;color:#777;padding:0 15px 13px}.item .editbox{margin:0;border-radius:0;border-top:1px solid #eee7dc}.item .editbox{display:none}.item.open .editbox{display:block}.item>strong:after{content:'⌄';float:right;color:#9d7a3d;font-size:18px;transition:.15s}.item.open>strong:after{transform:rotate(180deg)}.danger{background:#eee;color:#8a2d2d;padding:8px 10px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.actions button{padding:8px 10px;font-size:12px}
+.item{border:1px solid #e3ddd2;border-radius:13px;padding:12px;margin:8px 0;background:#fff}.item strong{display:block}.item small{color:#777}.danger{background:#eee;color:#8a2d2d;padding:8px 10px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.actions button{padding:8px 10px;font-size:12px}
 .empty{text-align:center;color:#777;padding:18px}.toast{position:fixed;top:15px;left:50%;transform:translateX(-50%);background:#171717;color:#fff;padding:11px 16px;border-radius:10px;display:none;z-index:30}
 @media(max-width:390px){.grid{grid-template-columns:1fr}.quick{grid-template-columns:repeat(3,1fr)}}
 .save-indicator{position:fixed;top:10px;right:10px;background:#171717;color:#e4c477;padding:7px 10px;border-radius:99px;font-size:10px;z-index:40;opacity:.9}.cart{margin-top:10px}.cart-item{background:#f7f4ee;border:1px solid #ddd3c2;border-radius:12px;padding:10px;margin:7px 0}.cart-total{font-size:20px;font-weight:900;margin-top:10px}.editbox{background:#f7f4ee;border-radius:14px;padding:12px;margin-top:10px}.mini{width:auto!important;padding:8px 10px!important}.addline{display:grid;grid-template-columns:1fr 80px 110px auto;gap:7px;align-items:end}@media(max-width:480px){.addline{grid-template-columns:1fr 70px 95px}.addline button{grid-column:1/-1}}
-
-/* OLIVER PARFUM — PREMIUM UI v2.7 */
-:root{--bg:#f5f2ed;--card:#fffdf9;--ink:#211f1c;--muted:#756f67;--gold:#a78343;--gold2:#c7a86a;--line:#e7dfd2;--dark:#191817}
-body{background:radial-gradient(circle at 15% -10%,#fff 0,#f7f4ef 36%,#f0ece5 100%);color:var(--ink);letter-spacing:.01em}
-.wrap{max-width:920px;padding-bottom:110px}
-.brand{padding:26px 4px 20px;position:relative}
-.brand h1{font-size:28px;letter-spacing:-.04em;margin-bottom:4px}
-.brand h1:after{content:"";display:inline-block;width:34px;height:2px;background:linear-gradient(90deg,var(--gold),transparent);margin-left:9px;vertical-align:middle}
-.sub{letter-spacing:.18em;font-size:10px;color:var(--gold);font-weight:800}
-.card{background:rgba(255,253,249,.94);border:1px solid rgba(167,131,67,.16);box-shadow:0 10px 35px rgba(40,30,15,.06);border-radius:22px;padding:18px}
-.card h2{font-size:17px;letter-spacing:-.02em;margin-bottom:14px}
-.kpis{gap:10px}
-.kpi{background:linear-gradient(145deg,#fffdf9,#f5f0e7);border:1px solid var(--line);border-radius:17px;padding:14px;box-shadow:inset 0 1px 0 #fff}
-.kpi span{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-.kpi strong{font-size:19px;margin-top:5px;display:block}
-button{border-radius:13px;font-weight:750;letter-spacing:.01em;transition:transform .12s,box-shadow .12s,filter .12s}
-button:active{transform:scale(.98)}
-button.primary,button.gold{background:linear-gradient(135deg,#b28b4c,#8e6b34);box-shadow:0 7px 18px rgba(142,107,52,.18)}
-button.muted{background:#f3eee5;border:1px solid var(--line);color:#514a41}
-input,select,textarea{border:1px solid #ddd4c6!important;background:#fffefa!important;border-radius:12px!important;min-height:43px}
-input:focus,select:focus,textarea:focus{outline:none!important;border-color:#b7965c!important;box-shadow:0 0 0 3px rgba(183,150,92,.12)}
-.item{border:1px solid var(--line);border-radius:17px;background:linear-gradient(180deg,#fffefa,#fbf8f2);box-shadow:0 4px 16px rgba(40,30,15,.035);margin:9px 0}
-.item>strong{padding:15px 16px 4px;font-size:14px}
-.item>small{padding:0 16px 14px;color:#827a70}
-.item.open{border-color:rgba(167,131,67,.35);box-shadow:0 9px 25px rgba(40,30,15,.07)}
-nav{background:rgba(25,24,23,.96);backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.08);padding:7px 6px calc(7px + env(safe-area-inset-bottom));gap:3px;box-shadow:0 -8px 25px rgba(0,0,0,.12)}
-nav button{border-radius:12px;color:#a9a49c;background:transparent;padding:8px 3px}
-nav button.active{background:linear-gradient(180deg,#302d28,#24221f);color:#f4dfb1;box-shadow:inset 0 0 0 1px rgba(199,168,106,.16)}
-nav button b{font-size:16px}
-nav button{font-size:9px}
-.empty{border:1px dashed #d9d0c2;border-radius:15px;padding:22px;text-align:center;color:#8a8278;background:#fcfaf6}
-@media(max-width:650px){.wrap{padding-left:14px;padding-right:14px}.card{padding:15px;border-radius:19px}.kpi{padding:12px}.kpi strong{font-size:17px}}
-
-
-/* CONTRASTE v2.7.1 — texto escuro em superfícies claras */
-body,.wrap,.page,.card,.item,.item strong,.item small,.kpi,.kpi span,.kpi strong,
-label,.row,.row span,.row strong,h1,h2,h3,h4,p,small,span,div{
-  color:#211f1c;
-}
-.card,.item,.kpi,.empty{
-  color:#211f1c;
-}
-.item small,.kpi span,.sub,.muted-text{
-  color:#756f67;
-}
-input,select,textarea{
-  color:#211f1c !important;
-  caret-color:#211f1c;
-}
-input::placeholder,textarea::placeholder{
-  color:#91897f !important;
-  opacity:1;
-}
-button.muted{
-  color:#514a41 !important;
-}
-button.primary,button.gold{
-  color:#fffdf8 !important;
-}
-nav button{
-  color:#aaa59c !important;
-}
-nav button.active{
-  color:#f4dfb1 !important;
-}
-.item>strong:after{
-  color:#9d7a3d !important;
-}
-a{
-  color:#8e6b34;
-}
-
-
-.payment-group h2{display:flex;align-items:center;gap:7px}
-.payment-group{margin-top:12px}
-
 </style></head>
 <body>
 <div class="toast" id="toast"></div><div id="saveIndicator" class="save-indicator">● SALVO</div>
-<div class="wrap"><div class="brand"><div class="logo">OLIVER PARFUM</div><div class="sub">GESTÃO DA LOJA</div><div style="font-size:11px;color:#777;margin-top:7px">Controle simples, elegante e sempre salvo</div></div>
+<div class="wrap"><div class="brand"><div class="logo">OLIVER PARFUM</div><div class="sub">GESTÃO DA LOJA</div></div>
 
 <section id="painel" class="page active">
 <div class="kpis">
@@ -108,11 +32,7 @@ a{
 <div class="kpi"><span>A receber</span><strong id="kPend">R$ 0,00</strong></div>
 <div class="kpi"><span>Vendas</span><strong id="kVendas">0</strong></div>
 </div>
-<div class="card"><h2>Resumo</h2><div class="row"><span>Total investido</span><strong id="investido">R$ 829,00</strong></div><div class="field" style="margin-top:10px"><label>Editar total investido</label><input id="investimentoEdit" inputmode="decimal" placeholder="829,00"></div><button class="gold" onclick="saveInvestment()">SALVAR INVESTIMENTO</button><div class="row" style="margin-top:10px"><span>Resultado sobre investimento</span><strong id="roi">R$ 0,00</strong></div><button class="primary" style="margin-top:8px" onclick="showPage('vendas')">+ Registrar venda</button><div class="actions" style="margin-top:10px">
-<button class="muted" onclick="exportBackup()">💾 FAZER BACKUP</button>
-<button class="muted" onclick="document.getElementById('restoreFile').click()">📥 RESTAURAR</button>
-<input id="restoreFile" type="file" accept=".json,application/json" hidden onchange="importBackup(event)">
-</div></div>
+<div class="card"><h2>Resumo</h2><div class="row"><span>Total investido</span><strong id="investido">R$ 3.990,16</strong></div><div class="field" style="margin-top:10px"><label>Editar total investido</label><input id="investimentoEdit" inputmode="decimal" placeholder="829,00"></div><button class="gold" onclick="saveInvestment()">SALVAR INVESTIMENTO</button><div class="row" style="margin-top:10px"><span>Resultado sobre investimento</span><strong id="roi">R$ 0,00</strong></div><button class="primary" style="margin-top:8px" onclick="showPage('vendas')">+ Registrar venda</button></div>
 <div class="card"><h2>Últimas vendas</h2><div id="ultimas"></div></div>
 </section>
 
@@ -133,7 +53,7 @@ a{
 
 <section id="produtos" class="page"><div class="card"><h2>Produtos</h2>
 <div class="grid"><div class="field"><label>Produto</label><input id="p_nome"></div><div class="field"><label>Tamanho</label><input id="p_tam" placeholder="100ml"></div></div>
-<div class="grid"><div class="field"><label>Categoria</label><input id="p_cat" value="Perfume"></div><div class="field"><label>Custo</label><input id="p_custo" inputmode="decimal"></div></div>
+<div class="grid"><div class="field"><label>Categoria</label><input id="p_cat" value="Perfume"></div><div class="field"><label>Custo pago</label><input id="p_custo" inputmode="decimal"></div></div>
 <div class="grid"><div class="field"><label>Preço de venda</label><input id="p_preco" inputmode="decimal"></div><div class="field"><label>Estoque</label><input id="p_estoque" type="number" value="0"></div></div>
 <div class="field"><label>Observações</label><input id="p_obs"></div>
 <button class="primary" onclick="addProduct()">Adicionar produto</button></div><div id="productList"></div></section>
@@ -142,62 +62,39 @@ a{
 <div class="field"><label>Nome</label><input id="cl_nome"></div><div class="grid"><div class="field"><label>WhatsApp/Contato</label><input id="cl_tel"></div><div class="field"><label>Cidade</label><input id="cl_cidade"></div></div><div class="field"><label>Observações</label><input id="cl_obs"></div>
 <button class="primary" onclick="addClient()">Adicionar cliente</button></div><div id="clientList"></div></section>
 
-<section id="encomendas" class="page"><div class="card"><h2>📋 Nova encomenda</h2>
-<div class="field"><label>Cliente</label><select id="en_cliente"></select></div>
-<div class="field"><label>Produto encomendado</label><input id="en_produto" placeholder="Ex.: Asad 100ml"></div>
-<div class="grid"><div class="field"><label>Quantidade</label><input id="en_qtd" type="number" value="1" min="1"></div><div class="field"><label>Valor combinado (opcional)</label><input id="en_valor" inputmode="decimal"></div></div>
-<div class="field"><label>Observações</label><input id="en_obs"></div>
-<button class="primary" onclick="addOrder()">Adicionar encomenda</button></div><div id="orderList"></div></section>
-
 <section id="vendas" class="page"><div class="card"><h2>Nova venda</h2>
 <div class="field"><label>Cliente</label><select id="v_cliente"></select></div>
-<div class="addline"><div><label>Produto</label><select id="v_produto"></select></div><div><label>Qtd.</label><input id="v_qtd" type="number" value="1" min="1"></div><div><label>Preço da venda</label><input id="v_valor" inputmode="decimal" placeholder="Pode dar desconto"></div><button class="gold mini" onclick="addCartItem()">+ PRODUTO</button></div>
-<div id="saleCart" class="cart"></div><div class="row"><span>Preço normal</span><strong id="cartNormalTotal">R$ 0,00</strong></div><div class="row"><span>Desconto aplicado</span><strong id="cartDiscount">R$ 0,00</strong></div><div class="row"><span>Total da venda</span><strong id="saleCartTotal">R$ 0,00</strong></div>
+<div class="addline"><div><label>Produto</label><select id="v_produto"></select></div><div><label>Qtd.</label><input id="v_qtd" type="number" value="1" min="1"></div><div><label>Valor unit.</label><input id="v_valor" inputmode="decimal"></div><button class="gold mini" onclick="addCartItem()">+ PRODUTO</button></div>
+<div id="saleCart" class="cart"></div><div class="row"><span>Total da venda</span><strong id="saleCartTotal">R$ 0,00</strong></div>
 <div class="grid"><div class="field"><label>Forma de pagamento</label><select id="v_pag"><option>Pix</option><option>Dinheiro</option><option>Débito</option><option>Crédito</option><option>Parcelado</option><option>A pagar</option></select></div><div class="field"><label>Status</label><select id="v_status"><option>Pago</option><option>Pendente</option><option>Parcial</option></select></div></div>
 <div class="field"><label>Valor pago</label><input id="v_pago" inputmode="decimal" value="0"></div><button class="primary" onclick="addSaleMulti()">REGISTRAR VENDA</button></div><div class="card"><h2>Vendas</h2><div id="salesList"></div></div></section>
+
+<section id="balanco" class="page">
+<div class="kpis">
+<div class="kpi"><span>Faturamento</span><strong id="b_fat">R$ 0,00</strong></div>
+<div class="kpi"><span>Lucro bruto</span><strong id="b_bruto">R$ 0,00</strong></div>
+<div class="kpi"><span>Lucro líquido</span><strong id="b_liquido">R$ 0,00</strong></div>
+<div class="kpi"><span>A receber</span><strong id="b_receber">R$ 0,00</strong></div>
+</div>
+<div class="card"><h2>Estoque</h2>
+<div class="row"><span>Estoque pelo custo</span><strong id="b_estoque_custo">R$ 0,00</strong></div>
+<div class="row"><span>Estoque pelo preço de venda</span><strong id="b_estoque_venda">R$ 0,00</strong></div>
+<div class="row"><span>Lucro potencial do estoque</span><strong id="b_estoque_lucro">R$ 0,00</strong></div>
+</div>
+<div class="card"><h2>Capital e patrimônio</h2>
+<div class="row"><span>Capital próprio investido</span><strong id="b_capital">R$ 0,00</strong></div>
+<div class="row"><span>Caixa informado</span><strong id="b_caixa">R$ 0,00</strong></div>
+<div class="row"><span>Patrimônio identificado</span><strong id="b_patrimonio">R$ 0,00</strong></div>
+<div class="row"><span>Resultado acumulado</span><strong id="b_resultado">R$ 0,00</strong></div>
+<div class="field" style="margin-top:10px"><label>Caixa atual da loja</label><input id="balancoCaixa" inputmode="decimal" placeholder="0,00"></div>
+<button class="gold" onclick="saveBalanceCash()">SALVAR CAIXA</button>
+</div>
+<div class="card"><h2>Custos considerados</h2><div class="row"><span>Frete por produto</span><strong>R$ 2,15</strong></div><div class="row"><span>Embalagem por produto</span><strong>R$ 1,50</strong></div><div class="row"><span>Taxa embutida</span><strong>11%</strong></div><small style="color:#777">O custo total é calculado como custo pago + R$ 2,15 de frete + R$ 1,50 de embalagem + 11% do custo pago.</small></div>
+</section>
 </div>
 
-
-
-<section id="pagamentos" class="page">
-  <div class="card">
-    <h2>💳 Controle de pagamentos</h2>
-    <div class="kpis">
-      <div class="kpi"><span>Total vendido</span><strong id="payFat">R$ 0,00</strong></div>
-      <div class="kpi"><span>Recebido</span><strong id="payRec">R$ 0,00</strong></div>
-      <div class="kpi"><span>A receber</span><strong id="payPend">R$ 0,00</strong></div>
-      <div class="kpi"><span>Em aberto</span><strong id="payOpen">0</strong></div>
-    </div>
-  </div>
-
-  <div class="card payment-group">
-    <h2>🟢 Pagos</h2>
-    <div id="paidList"></div>
-  </div>
-
-  <div class="card payment-group">
-    <h2>🟡 Parciais</h2>
-    <div id="partialList"></div>
-  </div>
-
-  <div class="card payment-group">
-    <h2>🔴 Pendentes</h2>
-    <div id="pendingList"></div>
-  </div>
-</section>
-
-<section id="estoque" class="page">
-<div class="card"><h2>Estoque</h2>
-<div class="kpis">
-<div class="kpi"><span>Unidades</span><strong id="stockQty">0</strong></div>
-<div class="kpi"><span>Valor de venda</span><strong id="stockSale">R$ 0,00</strong></div>
-<div class="kpi"><span>Custo</span><strong id="stockCost">R$ 0,00</strong></div>
-<div class="kpi"><span>Lucro potencial</span><strong id="stockProfit">R$ 0,00</strong></div>
-</div></div>
-<div class="card"><h2>Produtos em estoque</h2><div id="stockList"></div></div>
-</section>
 <nav>
-<button class="active" data-page="painel"><b>📊</b>Painel</button><button data-page="calculadora"><b>🧮</b>Calcular</button><button data-page="produtos"><b>📦</b>Produtos</button><button data-page="clientes"><b>👥</b>Clientes</button><button data-page="encomendas"><b>📋</b>Encomendas</button><button data-page="vendas"><b>🛒</b>Vendas</button><button data-page="pagamentos"><b>💳</b>Pagamentos</button><button data-page="estoque"><b>📦</b>Estoque</button>
+<button class="active" data-page="painel"><b>📊</b>Painel</button><button data-page="balanco"><b>📈</b>Balanço</button><button data-page="calculadora"><b>🧮</b>Calcular</button><button data-page="produtos"><b>📦</b>Produtos</button><button data-page="clientes"><b>👥</b>Clientes</button><button data-page="vendas"><b>🛒</b>Vendas</button>
 </nav>
 <script>
 const brl=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v||0);
@@ -205,7 +102,6 @@ const num=x=>{let s=(x||'').toString().replace(/\./g,'').replace(',','.').replac
 const $=id=>document.getElementById(id);
 const store={get:(k,d)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d)),set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
 let clients=store.get('clients',[{nome:'Valmira',tel:'',cidade:'',obs:''},{nome:'Glenda',tel:'',cidade:'',obs:''},{nome:'Thalia',tel:'',cidade:'',obs:''},{nome:'Luciene',tel:'',cidade:'',obs:''},{nome:'Marcos Mefsa',tel:'',cidade:'',obs:''},{nome:'Anderson Mefsa',tel:'',cidade:'',obs:''},{nome:'Eliane',tel:'',cidade:'',obs:''},{nome:'Simone',tel:'',cidade:'',obs:''},{nome:'Marcelo',tel:'',cidade:'',obs:''}]);
-let orders=store.get('orders',[]);
 let products=store.get('products',[{nome:'Charlota',tam:'25ml',cat:'Perfume',custo:0,preco:80,estoque:0,obs:''},{nome:'Amber',tam:'30ml',cat:'Perfume',custo:0,preco:135,estoque:0},{nome:'Baccarat Rouge',tam:'100ml',cat:'Perfume',custo:0,preco:380,estoque:0},{nome:'Delina de Marly',tam:'25ml',cat:'Perfume',custo:0,preco:0,estoque:0},{nome:'Le Moment (bolsinha)',tam:'25ml',cat:'Perfume',custo:0,preco:160,estoque:0},{nome:'Gaultier Divine',tam:'25ml',cat:'Perfume',custo:0,preco:0,estoque:0},{nome:'Silver Scent Intense',tam:'25ml',cat:'Perfume',custo:0,preco:70,estoque:0},{nome:'Angel Elixir',tam:'25ml',cat:'Perfume',custo:0,preco:70,estoque:0},{nome:'Scandal',tam:'25ml',cat:'Perfume',custo:0,preco:80,estoque:0},{nome:'Delina de Meliora',tam:'25ml',cat:'Perfume',custo:0,preco:0,estoque:0}]);
 let sales=store.get('sales',[{data:'',cliente:'Valmira',produto:'Charlota',tam:'25ml',qtd:1,unit:80,total:80,pag:'Pix',status:'Pago',pago:80},{data:'',cliente:'Glenda',produto:'Amber',tam:'30ml',qtd:1,unit:135,total:135,pag:'Pix',status:'Pago',pago:135},{data:'',cliente:'Thalia',produto:'Baccarat Rouge',tam:'100ml',qtd:1,unit:380,total:380,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Luciene',produto:'Le Moment (bolsinha)',tam:'25ml',qtd:1,unit:160,total:160,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Marcos Mefsa',produto:'Silver Scent Intense',tam:'25ml',qtd:1,unit:70,total:70,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Anderson Mefsa',produto:'Angel Elixir',tam:'25ml',qtd:1,unit:70,total:70,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Eliane',produto:'Scandal',tam:'25ml',qtd:1,unit:80,total:80,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Simone',produto:'Gaultier Divine',tam:'25ml',qtd:1,unit:80,total:80,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Marcelo',produto:'Scandal',tam:'25ml',qtd:1,unit:160,total:160,pag:'A pagar',status:'Pendente',pago:0}]);
 
@@ -226,7 +122,7 @@ function updateProduct(i){
   products[i].nome=$('pe_nome_'+i).value.trim();
   products[i].tam=$('pe_tam_'+i).value.trim();
   products[i].cat=$('pe_cat_'+i).value.trim();
-  products[i].custo=num($('pe_custo_'+i).value);
+  products[i].custoBase=num($('pe_custo_'+i).value);products[i].custo=calcCustoTotal(products[i].custoBase);
   products[i].preco=num($('pe_preco_'+i).value);
   products[i].estoque=Math.max(0,num($('pe_estoque_'+i).value));
   products[i].obs=$('pe_obs_'+i).value;
@@ -250,37 +146,35 @@ function removeClient(i){
 function useProductInCalculator(i){
   const p=products[i];
   showPage('calculadora');
-  $('c_prod').value=moneyInput(p.custo);
+  $('c_prod').value=moneyInput(p.custoBase ?? p.custo);
   $('c_frete').value='0,00';$('c_emb').value='0,00';$('c_outros').value='0,00';
   calc();toast('Produto carregado na calculadora ✓');
 }
-
-function addOrder(){
-  const cliente=$('en_cliente').value,produto=$('en_produto').value.trim();
-  if(!cliente)return toast('Selecione o cliente');
-  if(!produto)return toast('Informe o produto encomendado');
-  orders.unshift({data:new Date().toLocaleDateString('pt-BR'),cliente,produto,qtd:Math.max(1,Math.floor(num($('en_qtd').value))),valor:num($('en_valor').value),obs:$('en_obs').value,status:'Encomendada'});
-  store.set('orders',orders);
-  $('en_produto').value='';$('en_qtd').value='1';$('en_valor').value='';$('en_obs').value='';
-  renderAll();toast('Encomenda adicionada ✓');
-}
-function updateOrder(i){
-  const o=orders[i]; if(!o)return;
-  o.cliente=$('oe_cliente_'+i).value.trim(); o.produto=$('oe_produto_'+i).value.trim();
-  o.qtd=Math.max(1,Math.floor(num($('oe_qtd_'+i).value)));
-  o.valor=num($('oe_valor_'+i).value); o.obs=$('oe_obs_'+i).value;
-  store.set('orders',orders);renderAll();toast('Encomenda atualizada ✓');
-}
-function removeOrder(i){
-  if(!confirm('Remover esta encomenda?'))return;
-  orders.splice(i,1);store.set('orders',orders);renderAll();toast('Encomenda removida ✓');
-}
-
-function addProduct(){let nome=$('p_nome').value.trim();if(!nome)return toast('Informe o produto');products.push({nome,tam:$('p_tam').value,cat:$('p_cat').value,custo:num($('p_custo').value),preco:num($('p_preco').value),estoque:num($('p_estoque').value),obs:''});store.set('products',products);['p_nome','p_tam','p_custo','p_preco','p_obs'].forEach(x=>$(x).value='');renderAll();toast('Produto adicionado ✓')}
+function calcCustoTotal(base){base=Number(base||0);return base>0?Math.round((base+2.15+1.50+(base*0.11))*100)/100:0;}
+function addProduct(){let nome=$('p_nome').value.trim();if(!nome)return toast('Informe o produto');let base=num($('p_custo').value),custo=calcCustoTotal(base);products.push({nome,tam:$('p_tam').value,cat:$('p_cat').value,custo,custoBase:base,preco:num($('p_preco').value),estoque:num($('p_estoque').value),obs:''});store.set('products',products);['p_nome','p_tam','p_custo','p_preco','p_obs'].forEach(x=>$(x).value='');renderAll();toast('Produto adicionado ✓')}
 function addClient(){let nome=$('cl_nome').value.trim();if(!nome)return toast('Informe o cliente');clients.push({nome,tel:$('cl_tel').value,cidade:$('cl_cidade').value,obs:$('cl_obs').value});store.set('clients',clients);['cl_nome','cl_tel','cl_cidade','cl_obs'].forEach(x=>$(x).value='');renderAll();toast('Cliente adicionado ✓')}
 function addSale(){let cliente=$('v_cliente').value,pi=$('v_produto').value,prod=products[+pi],q=Math.max(1,num($('v_qtd').value)),unit=num($('v_valor').value)||prod?.preco||0,total=q*unit,pago=num($('v_pago').value);if(!cliente||!prod)return toast('Selecione cliente e produto');if(q>Number(prod.estoque||0))return toast('Estoque insuficiente: disponível '+Number(prod.estoque||0));prod.estoque=Number(prod.estoque||0)-q;sales.unshift({data:new Date().toLocaleDateString('pt-BR'),cliente,produto:prod.nome,tam:prod.tam,qtd:q,unit,total,pag:$('v_pag').value,status:$('v_status').value,pago});store.set('products',products);store.set('sales',sales);$('v_pago').value='0';renderAll();toast('Venda registrada ✓ — estoque atualizado')}
 
-let investment = Number(localStorage.getItem('investment') || 829);
+// Migração de custos v2.7: aplica frete R$2,15 + embalagem R$1,50 + 11% sobre o custo base, uma única vez.
+const COST_VERSION='v2.7-custos';
+function migrateCosts(){
+  if(localStorage.getItem('costMigration')===COST_VERSION)return;
+  products.forEach(p=>{
+    const base=Number(p.custoBase ?? p.custo ?? 0);
+    if(base>0){p.custoBase=base;p.custo=calcCustoTotal(base);}
+  });
+  sales.forEach(s=>{
+    if(Array.isArray(s.items))s.items.forEach(it=>{
+      const p=products.find(x=>x.nome===it.produto && x.tam===it.tam)||products.find(x=>x.nome===it.produto);
+      if(p)it.custo=p.custo;
+    });
+  });
+  store.set('products',products);store.set('sales',sales);localStorage.setItem('costMigration',COST_VERSION);
+}
+migrateCosts();
+if(localStorage.getItem('capitalMigration')!=='v1'){ localStorage.setItem('investment','3990.16'); localStorage.setItem('capitalMigration','v1'); }
+let investment = Number(localStorage.getItem('investment') || 3990.16);
+
 function saveInvestment(){
   investment = num($('investimentoEdit').value);
   localStorage.setItem('investment', String(investment));
@@ -299,182 +193,36 @@ function updateSale(i){
 
 let saleCart=[];
 function saveAll(){store.set('products',products);store.set('clients',clients);store.set('sales',sales);localStorage.setItem('investment',String(investment));const x=$('saveIndicator');if(x){x.textContent='● SALVANDO...';setTimeout(()=>x.textContent='● SALVO',120);}}
-function addCartItem(){
-  let pi=+$('v_produto').value,p=products[pi],q=Math.max(1,Math.floor(num($('v_qtd').value)));
-  if(!p)return toast('Selecione um produto');
-  let normal=Number(p.preco||0),raw=$('v_valor').value;
-  let u=raw===''?normal:Math.max(0,num(raw));
-  let ex=saleCart.find(x=>x.pi===pi),nq=(ex?.qtd||0)+q;
-  if(nq>Number(p.estoque||0))return toast('Estoque insuficiente');
-  if(ex){ex.qtd=nq;ex.unit=u;ex.normal=normal}else saleCart.push({pi,qtd:q,unit:u,normal});
-  renderCart();
-}
+function addCartItem(){let pi=+$('v_produto').value,p=products[pi],q=Math.max(1,Math.floor(num($('v_qtd').value))),u=num($('v_valor').value)||p?.preco||0;if(!p)return toast('Selecione um produto');let ex=saleCart.find(x=>x.pi===pi);let nq=(ex?.qtd||0)+q;if(nq>Number(p.estoque||0))return toast('Estoque insuficiente');if(ex){ex.qtd=nq;ex.unit=u}else saleCart.push({pi,qtd:q,unit:u});renderCart();}
 function removeCartItem(i){saleCart.splice(i,1);renderCart()}
-function editCartItem(i){
-  let x=saleCart[i],p=products[x.pi];
-  let q=prompt('Quantidade',x.qtd);if(q===null)return;
-  let u=prompt('Preço unitário da venda\nPreço normal: '+moneyInput(x.normal),String(x.unit).replace('.',','));if(u===null)return;
-  q=Math.max(1,Math.floor(num(q)));u=Math.max(0,num(u));
-  if(q>Number(p.estoque||0))return toast('Estoque insuficiente');
-  x.qtd=q;x.unit=u;renderCart();
-}
-function renderCart(){
-  let normalTotal=saleCart.reduce((a,x)=>a+x.qtd*x.normal,0);
-  let total=saleCart.reduce((a,x)=>a+x.qtd*x.unit,0);
-  if($('cartNormalTotal'))$('cartNormalTotal').textContent=brl(normalTotal);
-  if($('cartDiscount'))$('cartDiscount').textContent=brl(Math.max(0,normalTotal-total));
-  $('saleCartTotal').textContent=brl(total);
-  $('saleCart').innerHTML=saleCart.map((x,i)=>{
-    let p=products[x.pi],discount=Math.max(0,x.normal-x.unit);
-    return `<div class="cart-item"><div class="row"><strong>${esc(p.nome)} • ${esc(p.tam)}</strong><strong>${brl(x.qtd*x.unit)}</strong></div><small>${x.qtd} × ${brl(x.unit)}${discount>0?' · desconto '+brl(discount)+' por unidade':''}</small>${discount>0?`<small style="display:block;color:#8e6b34">Preço normal: ${brl(x.normal)} · Promoção: ${brl(x.unit)}</small>`:''}<div class="actions"><button class="gold" onclick="editCartItem(${i})">EDITAR</button><button class="danger" onclick="removeCartItem(${i})">REMOVER</button></div></div>`
-  }).join('')||'<div class="empty">Adicione um ou mais produtos à venda</div>';
-}
-
-function addSaleMulti(){let cliente=$('v_cliente').value;if(!cliente||!saleCart.length)return toast('Selecione cliente e adicione produtos');let total=saleCart.reduce((a,x)=>a+x.qtd*x.unit,0),pago=Math.min(total,Math.max(0,num($('v_pago').value))),items=[];for(let x of saleCart){let p=products[x.pi];if(x.qtd>Number(p.estoque||0))return toast('Estoque insuficiente: '+p.nome);p.estoque-=x.qtd;items.push({produto:p.nome,tam:p.tam,qtd:x.qtd,unit:x.unit,precoNormal:x.normal,custo:p.custo,pi:x.pi,desconto:Number(x.normal||0)-Number(x.unit||0)})}sales.unshift({id:Date.now(),data:new Date().toLocaleDateString('pt-BR'),cliente,items,produto:items.map(x=>x.produto).join(' + '),tam:items.map(x=>x.tam).join(' + '),qtd:items.reduce((a,x)=>a+x.qtd,0),unit:0,total,pag:$('v_pag').value,status:pago>=total?'Pago':pago>0?'Parcial':$('v_status').value,pago});saleCart=[];saveAll();renderAll();renderCart();$('v_pago').value='0';toast('Venda registrada ✓');}
+function editCartItem(i){let x=saleCart[i],p=products[x.pi];let q=prompt('Quantidade',x.qtd);if(q===null)return;let u=prompt('Valor unitário',String(x.unit).replace('.',','));if(u===null)return;q=Math.max(1,Math.floor(num(q)));u=Math.max(0,num(u));if(q>p.estoque)return toast('Estoque insuficiente');x.qtd=q;x.unit=u;renderCart()}
+function renderCart(){let total=saleCart.reduce((a,x)=>a+x.qtd*x.unit,0);$('saleCartTotal').textContent=brl(total);$('saleCart').innerHTML=saleCart.map((x,i)=>{let p=products[x.pi];return `<div class="cart-item"><div class="row"><strong>${esc(p.nome)} • ${esc(p.tam)}</strong><strong>${brl(x.qtd*x.unit)}</strong></div><small>${x.qtd} × ${brl(x.unit)}</small><div class="actions"><button class="gold" onclick="editCartItem(${i})">EDITAR</button><button class="danger" onclick="removeCartItem(${i})">REMOVER</button></div></div>`}).join('')||'<div class="empty">Adicione um ou mais produtos à venda</div>'}
+function addSaleMulti(){let cliente=$('v_cliente').value;if(!cliente||!saleCart.length)return toast('Selecione cliente e adicione produtos');let total=saleCart.reduce((a,x)=>a+x.qtd*x.unit,0),pago=Math.min(total,Math.max(0,num($('v_pago').value))),items=[];for(let x of saleCart){let p=products[x.pi];if(x.qtd>Number(p.estoque||0))return toast('Estoque insuficiente: '+p.nome);p.estoque-=x.qtd;items.push({produto:p.nome,tam:p.tam,qtd:x.qtd,unit:x.unit,custo:p.custo,pi:x.pi})}sales.unshift({id:Date.now(),data:new Date().toLocaleDateString('pt-BR'),cliente,items,produto:items.map(x=>x.produto).join(' + '),tam:items.map(x=>x.tam).join(' + '),qtd:items.reduce((a,x)=>a+x.qtd,0),unit:0,total,pag:$('v_pag').value,status:pago>=total?'Pago':pago>0?'Parcial':$('v_status').value,pago});saleCart=[];saveAll();renderAll();renderCart();$('v_pago').value='0';toast('Venda registrada ✓');}
 function editSale(i){let s=sales[i],pago=prompt('Valor pago',String(s.pago||0).replace('.',','));if(pago===null)return;s.pago=Math.min(s.total,Math.max(0,num(pago)));s.status=s.pago>=s.total?'Pago':s.pago>0?'Parcial':'Pendente';saveAll();renderAll();toast('Venda atualizada ✓')}
 function removeSale(i){if(!confirm('Remover esta venda? O estoque será devolvido.'))return;let s=sales[i];let items=s.items||[{produto:s.produto,tam:s.tam,qtd:s.qtd}];items.forEach(x=>{let p=products.find(p=>p.nome===x.produto&&p.tam===x.tam)||products.find(p=>p.nome===x.produto);if(p)p.estoque=Number(p.estoque||0)+Number(x.qtd||0)});sales.splice(i,1);saveAll();renderAll();toast('Venda removida ✓')}
-
-function editProduct(i){
-  const p=products[i];
-  if(!p)return;
-  const name=prompt('Nome do produto',p.nome??''); if(name===null)return;
-  const tam=prompt('Tamanho / volume',p.tam??''); if(tam===null)return;
-  const preco=prompt('Preço de venda',String(p.preco??'').replace('.',',')); if(preco===null)return;
-  const custo=prompt('Custo do produto',String(p.custo??'').replace('.',',')); if(custo===null)return;
-  const estoque=prompt('Estoque',String(p.estoque??0)); if(estoque===null)return;
-  p.nome=name.trim()||p.nome;
-  p.tam=tam.trim();
-  p.preco=Math.max(0,num(preco));
-  p.custo=Math.max(0,num(custo));
-  p.estoque=Math.max(0,Math.floor(num(estoque)));
-  save();
-  renderAll();
-  toast('Produto atualizado');
-}
-function deleteProduct(i){
-  const p=products[i];
-  if(!p)return;
-  if(!confirm('Remover '+(p.nome||'este produto')+' do cadastro?'))return;
-  products.splice(i,1);
-  save();
-  renderAll();
-  toast('Produto removido');
-}
-
-function renderAll(){
-
-$('en_cliente').innerHTML=clients.map(c=>`<option>${esc(c.nome)}</option>`).join('');
-$('orderList').innerHTML=orders.map((o,i)=>`<div class="item" onclick="toggleItem(this)">
-<strong>${esc(o.cliente)} — ${esc(o.produto)}</strong>
-<small>${o.qtd||1} un. · ${o.data||''}${o.valor?` · ${brl(o.valor)}`:''} · ${esc(o.status||'Encomendada')}</small>
-<div class="editbox" onclick="event.stopPropagation()">
-<div class="grid"><div class="field"><label>Cliente</label><input id="oe_cliente_${i}" value="${esc(o.cliente)}"></div>
-<div class="field"><label>Produto</label><input id="oe_produto_${i}" value="${esc(o.produto)}"></div>
-<div class="field"><label>Quantidade</label><input id="oe_qtd_${i}" type="number" value="${o.qtd||1}"></div>
-<div class="field"><label>Valor</label><input id="oe_valor_${i}" inputmode="decimal" value="${moneyInput(o.valor||0)}"></div></div>
-<div class="field"><label>Observações</label><input id="oe_obs_${i}" value="${esc(o.obs||'')}"></div>
-<div class="actions"><button class="gold" onclick="updateOrder(${i})">SALVAR</button><button class="danger" onclick="removeOrder(${i})">REMOVER</button></div>
-</div></div>`).join('')||'<div class="empty">Nenhuma encomenda cadastrada.</div>';
-
-$('productList').innerHTML=products.map((p,i)=>`<div class="item" onclick="toggleItem(this)"><strong>${esc(p.nome)} • ${esc(p.tam)}</strong><small>Estoque: ${p.estoque||0} · Custo: ${brl(p.custo)} · Venda: ${brl(p.preco)}</small><div class="editbox" onclick="event.stopPropagation()"><div class="grid"><div><label>Nome</label><input id="pe_nome_${i}" value="${esc(p.nome)}"></div><div><label>Tamanho</label><input id="pe_tam_${i}" value="${esc(p.tam)}"></div><div><label>Categoria</label><input id="pe_cat_${i}" value="${esc(p.cat)}"></div><div><label>Custo</label><input id="pe_custo_${i}" inputmode="decimal" value="${moneyInput(p.custo)}"></div><div><label>Preço</label><input id="pe_preco_${i}" inputmode="decimal" value="${moneyInput(p.preco)}"></div><div><label>Estoque</label><input id="pe_estoque_${i}" type="number" value="${p.estoque||0}"></div></div><div class="field"><label>Observações</label><input id="pe_obs_${i}" value="${esc(p.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateProduct(${i})">SALVAR PRODUTO</button><button class="danger" onclick="removeProduct(${i})">REMOVER</button></div></div></div>`).join('')||'<div class="empty">Nenhum produto</div>';
-$('clientList').innerHTML=clients.map((c,i)=>`<div class="item" onclick="toggleItem(this)"><strong>${esc(c.nome)}</strong><small>${esc(c.tel||"")} ${c.cidade?"· "+esc(c.cidade):""}</small><div class="editbox" onclick="event.stopPropagation()"><div class="field"><label>Nome</label><input id="ce_nome_${i}" value="${esc(c.nome)}"></div><div class="grid"><div><label>Contato</label><input id="ce_tel_${i}" value="${esc(c.tel||'')}"></div><div><label>Cidade</label><input id="ce_cidade_${i}" value="${esc(c.cidade||'')}"></div></div><div class="field"><label>Observações</label><input id="ce_obs_${i}" value="${esc(c.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateClient(${i})">SALVAR CLIENTE</button><button class="danger" onclick="removeClient(${i})">REMOVER</button></div></div></div>`).join('')||'<div class="empty">Nenhum cliente</div>';
-$('v_cliente').innerHTML=clients.map(c=>`<option>${esc(c.nome)}</option>`).join('');$('v_produto').innerHTML=products.map((p,i)=>`<option value="${i}">${esc(p.nome)} • ${esc(p.tam)} — ${brl(p.preco)} · estoque ${p.estoque||0}</option>`).join('');let fat=sales.reduce((a,s)=>a+s.total,0),rec=sales.reduce((a,s)=>a+s.pago,0);$('kFat').textContent=brl(fat);$('kRec').textContent=brl(rec);$('kPend').textContent=brl(fat-rec);$('kVendas').textContent=sales.length;$('investido').textContent=brl(investment);$('roi').textContent=brl(fat-investment);if($('investimentoEdit'))$('investimentoEdit').value=investment.toFixed(2).replace('.',',');$('ultimas').innerHTML=sales.slice(0,5).map(s=>`<div class="item"><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · ${brl(s.total)} · ${s.status}</small></div>`).join('')||'<div class="empty">Nenhuma venda</div>';$('salesList').innerHTML=sales.map((s,i)=>`<div class="item"><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · Total ${brl(s.total)} · Pago ${brl(s.pago)} · ${esc(s.pag)}</small><div class="actions"><button class="gold" onclick="editSale(${i})">EDITAR PAGAMENTO</button><button class="danger" onclick="removeSale(${i})">REMOVER VENDA</button></div></div>`).join('')||'<div class="empty">Nenhuma venda</div>'}
-
-
-function toggleItem(el){el.classList.toggle('open')}
-function renderPaymentAndStock(){
-  const total=sales.reduce((a,s)=>a+Number(s.total||0),0);
-  const received=sales.reduce((a,s)=>a+Number(s.pago||0),0);
-  const openSales=sales.filter(s=>Number(s.pago||0)<Number(s.total||0));
-  $('payFat').textContent=brl(total);
-  $('payRec').textContent=brl(received);
-  $('payPend').textContent=brl(Math.max(0,total-received));
-  $('payOpen').textContent=openSales.length;
-
-  const productsOf=s=>{
-    if(Array.isArray(s.items)&&s.items.length) return s.items.map(x=>`${x.produto||x.nome||''}${x.qtd>1?' × '+x.qtd:''}`).join(' + ');
-    return s.produto||'Venda';
-  };
-  const paymentCard=s=>{
-    const total=Number(s.total||0), paid=Number(s.pago||0), due=Math.max(0,total-paid);
-    const status=paid>=total&&total>0?'Pago':paid>0?'Parcial':'Pendente';
-    return `<div class="item" onclick="toggleItem(this)">
-      <strong>${esc(s.cliente||'Cliente')} — ${brl(total)}</strong>
-      <small>${esc(productsOf(s))} · ${status} · ${due>0?'Falta '+brl(due):'Quitado'}</small>
-      <div class="editbox">
-        <div class="row"><span>Total da venda</span><strong>${brl(total)}</strong></div>
-        <div class="row"><span>Já pago</span><strong>${brl(paid)}</strong></div>
-        <div class="row"><span>Falta</span><strong>${brl(due)}</strong></div>
-        <div class="row"><span>Forma de pagamento</span><strong>${esc(s.pag||s.formaPagamento||'—')}</strong></div>
-        <div class="actions"><button class="gold" onclick="event.stopPropagation();editSale(${sales.indexOf(s)})">EDITAR PAGAMENTO</button></div>
-      </div>
-    </div>`;
-  };
-
-  $('paidList').innerHTML=sales.filter(s=>Number(s.total||0)>0&&Number(s.pago||0)>=Number(s.total||0)).map(paymentCard).join('')||'<div class="empty">Nenhuma venda paga.</div>';
-  $('partialList').innerHTML=sales.filter(s=>Number(s.pago||0)>0&&Number(s.pago||0)<Number(s.total||0)).map(paymentCard).join('')||'<div class="empty">Nenhuma venda parcial.</div>';
-  $('pendingList').innerHTML=sales.filter(s=>Number(s.pago||0)===0).map(paymentCard).join('')||'<div class="empty">Nenhuma venda pendente.</div>';
-
-  const qty=products.reduce((a,p)=>a+Number(p.estoque||0),0);
-  const sale=products.reduce((a,p)=>a+Number(p.estoque||0)*Number(p.preco||0),0);
-  const cost=products.reduce((a,p)=>a+Number(p.estoque||0)*Number(p.custo||0),0);
-  $('stockQty').textContent=qty;
-  $('stockSale').textContent=brl(sale);
-  $('stockCost').textContent=brl(cost);
-  $('stockProfit').textContent=brl(sale-cost);
-  $('stockList').innerHTML=products.filter(p=>Number(p.estoque||0)>0).map(p=>{
-    const v=Number(p.estoque||0)*Number(p.preco||0), c=Number(p.estoque||0)*Number(p.custo||0);
-    return `<div class="item" onclick="toggleItem(this)"><strong>${esc(p.nome)} · ${esc(p.tam||'')}</strong><small>${p.estoque} un. · Venda ${brl(p.preco)} · Valor em estoque ${brl(v)}</small><div class="editbox"><div class="row"><span>Custo total</span><strong>${brl(c)}</strong></div><div class="row"><span>Valor para vender</span><strong>${brl(v)}</strong></div><div class="row"><span>Lucro potencial</span><strong>${brl(v-c)}</strong></div></div></div>`;
-  }).join('')||'<div class="empty">Nenhum produto em estoque.</div>';
-}
-function compactLists(){
-  document.querySelectorAll('#productList .item,#clientList .item,#salesList .item,#ultimas .item').forEach(el=>{
-    el.onclick=function(e){
-      if(e.target.closest('button,input,select')) return;
-      el.classList.toggle('open');
-    };
+function saveBalanceCash(){localStorage.setItem('balanceCash',String(num($('balancoCaixa').value)));renderAll();toast('Caixa atualizado ✓');}
+function renderBalance(){
+  const fat=sales.reduce((a,s)=>a+Number(s.total||0),0);
+  let custoVendido=0, taxas=0, fretes=0, embalagens=0;
+  sales.forEach(s=>{
+    if(Array.isArray(s.items)) s.items.forEach(it=>{custoVendido+=Number(it.custo||0)*Number(it.qtd||0);});
+    else {const p=products.find(p=>p.nome===s.produto&&p.tam===s.tam)||products.find(p=>p.nome===s.produto);if(p)custoVendido+=Number(p.custo||0)*Number(s.qtd||0);}
   });
+  const bruto=fat-custoVendido;
+  const receber=sales.reduce((a,s)=>a+Math.max(0,Number(s.total||0)-Number(s.pago||0)),0);
+  const estoqueCusto=products.reduce((a,p)=>a+Number(p.custo||0)*Number(p.estoque||0),0);
+  const estoqueVenda=products.reduce((a,p)=>a+Number(p.preco||0)*Number(p.estoque||0),0);
+  const estoqueLucro=estoqueVenda-estoqueCusto;
+  const caixa=Number(localStorage.getItem('balanceCash')||0);
+  const patrimonio=caixa+receber+estoqueCusto;
+  const resultado=patrimonio-investment;
+  $('b_fat').textContent=brl(fat);$('b_bruto').textContent=brl(bruto);$('b_liquido').textContent=brl(bruto);$('b_receber').textContent=brl(receber);$('b_estoque_custo').textContent=brl(estoqueCusto);$('b_estoque_venda').textContent=brl(estoqueVenda);$('b_estoque_lucro').textContent=brl(estoqueLucro);$('b_capital').textContent=brl(investment);$('b_caixa').textContent=brl(caixa);$('b_patrimonio').textContent=brl(patrimonio);$('b_resultado').textContent=brl(resultado);if($('balancoCaixa'))$('balancoCaixa').value=caixa.toFixed(2).replace('.',',');
 }
-
-async function exportBackup(){
-  const data={
-    app:"Oliver Parfum",
-    backupVersion:1,
-    createdAt:new Date().toISOString(),
-    clients:clients,
-    products:products,
-    sales:sales,
-    investment:Number(investment||0)
-  };
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;
-  a.download="Oliver_Parfum_Backup_"+new Date().toISOString().slice(0,10)+".json";
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
-  toast("Backup criado ✓");
-}
-function importBackup(ev){
-  const file=ev.target.files?.[0]; if(!file)return;
-  const reader=new FileReader();
-  reader.onload=()=>{
-    try{
-      const d=JSON.parse(reader.result);
-      if(!Array.isArray(d.clients)||!Array.isArray(d.products)||!Array.isArray(d.sales)) throw new Error("Formato");
-      if(!confirm("Restaurar este backup? Os dados atuais serão substituídos.")) return;
-      clients=d.clients; products=d.products; sales=d.sales;
-      investment=Number(d.investment||0);
-      store.set("clients",clients); store.set("products",products); store.set("sales",sales);
-      localStorage.setItem("investment",String(investment));
-      renderAll(); renderCart(); toast("Backup restaurado ✓");
-    }catch(e){ alert("Este arquivo não é um backup válido do Oliver Parfum."); }
-    ev.target.value="";
-  };
-  reader.readAsText(file);
-}
-
-$('v_produto').onchange=()=>{let p=products[+$('v_produto').value];$('v_valor').value=p?.preco||0};renderAll();calc();renderPaymentAndStock();renderCart();
+function renderAll(){
+$('productList').innerHTML=products.map((p,i)=>`<div class="item"><strong>${esc(p.nome)} • ${esc(p.tam)}</strong><small>Estoque: ${p.estoque||0} · Custo: ${brl(p.custo)} · Venda: ${brl(p.preco)}</small><div class="editbox"><div class="grid"><div><label>Nome</label><input id="pe_nome_${i}" value="${esc(p.nome)}"></div><div><label>Tamanho</label><input id="pe_tam_${i}" value="${esc(p.tam)}"></div><div><label>Categoria</label><input id="pe_cat_${i}" value="${esc(p.cat)}"></div><div><label>Custo pago</label><input id="pe_custo_${i}" inputmode="decimal" value="${moneyInput(p.custoBase ?? p.custo)}"><small style="color:#777">Custo total: ${brl(p.custo)}</small></div><div><label>Preço</label><input id="pe_preco_${i}" inputmode="decimal" value="${moneyInput(p.preco)}"></div><div><label>Estoque</label><input id="pe_estoque_${i}" type="number" value="${p.estoque||0}"></div></div><div class="field"><label>Observações</label><input id="pe_obs_${i}" value="${esc(p.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateProduct(${i})">SALVAR PRODUTO</button><button class="danger" onclick="removeProduct(${i})">REMOVER</button></div></div></div>`).join('')||'<div class="empty">Nenhum produto</div>';
+$('clientList').innerHTML=clients.map((c,i)=>`<div class="item"><strong>${esc(c.nome)}</strong><div class="editbox"><div class="field"><label>Nome</label><input id="ce_nome_${i}" value="${esc(c.nome)}"></div><div class="grid"><div><label>Contato</label><input id="ce_tel_${i}" value="${esc(c.tel||'')}"></div><div><label>Cidade</label><input id="ce_cidade_${i}" value="${esc(c.cidade||'')}"></div></div><div class="field"><label>Observações</label><input id="ce_obs_${i}" value="${esc(c.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateClient(${i})">SALVAR CLIENTE</button><button class="danger" onclick="removeClient(${i})">REMOVER</button></div></div></div>`).join('')||'<div class="empty">Nenhum cliente</div>';
+$('v_cliente').innerHTML=clients.map(c=>`<option>${esc(c.nome)}</option>`).join('');$('v_produto').innerHTML=products.map((p,i)=>`<option value="${i}">${esc(p.nome)} • ${esc(p.tam)} — ${brl(p.preco)} · estoque ${p.estoque||0}</option>`).join('');let fat=sales.reduce((a,s)=>a+s.total,0),rec=sales.reduce((a,s)=>a+s.pago,0);$('kFat').textContent=brl(fat);$('kRec').textContent=brl(rec);$('kPend').textContent=brl(fat-rec);$('kVendas').textContent=sales.length;$('investido').textContent=brl(investment);$('roi').textContent=brl(fat-investment);if($('investimentoEdit'))$('investimentoEdit').value=investment.toFixed(2).replace('.',',');$('ultimas').innerHTML=sales.slice(0,5).map(s=>`<div class="item"><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · ${brl(s.total)} · ${s.status}</small></div>`).join('')||'<div class="empty">Nenhuma venda</div>';renderBalance();$('salesList').innerHTML=sales.map((s,i)=>`<div class="item"><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · Total ${brl(s.total)} · Pago ${brl(s.pago)} · ${esc(s.pag)}</small><div class="actions"><button class="gold" onclick="editSale(${i})">EDITAR PAGAMENTO</button><button class="danger" onclick="removeSale(${i})">REMOVER VENDA</button></div></div>`).join('')||'<div class="empty">Nenhuma venda</div>'}
+$('v_produto').onchange=()=>{let p=products[+$('v_produto').value];$('v_valor').value=p?.preco||0};renderAll();calc();renderCart();
 $('v_produto').onchange=()=>{let p=products[+$('v_produto').value];$('v_valor').value=p?.preco||0};
 renderAll();calc();
 if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});} </script>
