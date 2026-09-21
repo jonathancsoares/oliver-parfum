@@ -105,6 +105,27 @@ let clients=store.get('clients',[{nome:'Valmira',tel:'',cidade:'',obs:''},{nome:
 let products=store.get('products',[{nome:'Charlota',tam:'25ml',cat:'Perfume',custo:0,preco:80,estoque:0,obs:''},{nome:'Amber',tam:'30ml',cat:'Perfume',custo:0,preco:135,estoque:0},{nome:'Baccarat Rouge',tam:'100ml',cat:'Perfume',custo:0,preco:380,estoque:0},{nome:'Delina de Marly',tam:'25ml',cat:'Perfume',custo:0,preco:0,estoque:0},{nome:'Le Moment (bolsinha)',tam:'25ml',cat:'Perfume',custo:0,preco:160,estoque:0},{nome:'Gaultier Divine',tam:'25ml',cat:'Perfume',custo:0,preco:0,estoque:0},{nome:'Silver Scent Intense',tam:'25ml',cat:'Perfume',custo:0,preco:70,estoque:0},{nome:'Angel Elixir',tam:'25ml',cat:'Perfume',custo:0,preco:70,estoque:0},{nome:'Scandal',tam:'25ml',cat:'Perfume',custo:0,preco:80,estoque:0},{nome:'Delina de Meliora',tam:'25ml',cat:'Perfume',custo:0,preco:0,estoque:0}]);
 let sales=store.get('sales',[{data:'',cliente:'Valmira',produto:'Charlota',tam:'25ml',qtd:1,unit:80,total:80,pag:'Pix',status:'Pago',pago:80},{data:'',cliente:'Glenda',produto:'Amber',tam:'30ml',qtd:1,unit:135,total:135,pag:'Pix',status:'Pago',pago:135},{data:'',cliente:'Thalia',produto:'Baccarat Rouge',tam:'100ml',qtd:1,unit:380,total:380,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Luciene',produto:'Le Moment (bolsinha)',tam:'25ml',qtd:1,unit:160,total:160,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Marcos Mefsa',produto:'Silver Scent Intense',tam:'25ml',qtd:1,unit:70,total:70,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Anderson Mefsa',produto:'Angel Elixir',tam:'25ml',qtd:1,unit:70,total:70,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Eliane',produto:'Scandal',tam:'25ml',qtd:1,unit:80,total:80,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Simone',produto:'Gaultier Divine',tam:'25ml',qtd:1,unit:80,total:80,pag:'A pagar',status:'Pendente',pago:0},{data:'',cliente:'Marcelo',produto:'Scandal',tam:'25ml',qtd:1,unit:160,total:160,pag:'A pagar',status:'Pendente',pago:0}]);
 
+// Protecao de clientes: nunca substitui uma lista existente. Recupera nomes de clientes que ainda aparecem nas vendas.
+function protectClients(){
+  try{
+    const raw=localStorage.getItem('clients');
+    const existing=raw?JSON.parse(raw):[];
+    const safe=Array.isArray(existing)?existing:[];
+    const seen=new Set(safe.map(c=>String(c?.nome||'').trim().toLowerCase()).filter(Boolean));
+    const candidates=Array.isArray(sales)?sales:[];
+    candidates.forEach(s=>{
+      const nome=String(s?.cliente||'').trim();
+      if(nome && !seen.has(nome.toLowerCase())){safe.push({nome,tel:'',cidade:'',obs:''});seen.add(nome.toLowerCase());}
+    });
+    if(safe.length){
+      if(raw) localStorage.setItem('clients_backup_v27',raw);
+      clients=safe;
+      store.set('clients',clients);
+    }
+  }catch(e){ console.warn('Protecao de clientes:',e); }
+}
+protectClients();
+
 function toast(t){$('toast').textContent=t;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',1600)}
 function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));renderAll();scrollTo(0,0)}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
