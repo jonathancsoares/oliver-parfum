@@ -91,10 +91,23 @@ input,select{width:100%;padding:12px;border:1px solid #ddd5c8;border-radius:11px
 </div>
 <div class="card"><h2>Custos dos produtos</h2><small style="color:#777">Os custos dos produtos já cadastrados foram ajustados uma única vez com frete de R$ 2,15 + embalagem de R$ 1,50 + 11% sobre o custo informado. Para novos produtos, informe diretamente o custo total que você calculou.</small></div>
 </section>
+
+<section id="backup" class="page">
+<div class="card"><h2>Backup e restauração</h2>
+<small style="color:#777;display:block;margin-bottom:12px">Faça uma cópia dos seus dados antes de trocar a versão do aplicativo. O backup inclui produtos, clientes, vendas, investimento e caixa.</small>
+<div class="actions" style="display:grid;gap:8px">
+<button class="primary" onclick="exportBackup()">⬇️ BAIXAR BACKUP</button>
+<label class="gold" style="text-align:center;display:block;cursor:pointer">⬆️ RESTAURAR BACKUP<input id="backupFile" type="file" accept="application/json,.json" style="display:none" onchange="importBackup(this)"></label>
+<button class="muted" onclick="saveLocalBackup()">💾 SALVAR BACKUP NESTE CELULAR</button>
+<button class="muted" onclick="restoreLocalBackup()">♻️ RESTAURAR BACKUP DESTE CELULAR</button>
+</div></div>
+<div class="card"><h2>Proteção dos clientes</h2><small style="color:#777">A restauração abaixo tenta recuperar a cópia de clientes criada pela proteção da versão anterior, sem apagar os demais dados.</small>
+<button class="gold" style="margin-top:10px" onclick="restoreClientsBackup()">RECUPERAR CLIENTES SALVOS</button></div>
+</section>
 </div>
 
 <nav>
-<button class="active" data-page="painel"><b>📊</b>Painel</button><button data-page="balanco"><b>📈</b>Balanço</button><button data-page="calculadora"><b>🧮</b>Calcular</button><button data-page="produtos"><b>📦</b>Produtos</button><button data-page="clientes"><b>👥</b>Clientes</button><button data-page="vendas"><b>🛒</b>Vendas</button>
+<button class="active" data-page="painel"><b>📊</b>Painel</button><button data-page="balanco"><b>📈</b>Balanço</button><button data-page="calculadora"><b>🧮</b>Calcular</button><button data-page="produtos"><b>📦</b>Produtos</button><button data-page="clientes"><b>👥</b>Clientes</button><button data-page="vendas"><b>🛒</b>Vendas</button><button data-page="backup"><b>💾</b>Backup</button>
 </nav>
 <script>
 const brl=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v||0);
@@ -241,10 +254,46 @@ function renderBalance(){
 }
 function renderAll(){
 $('productList').innerHTML=products.map((p,i)=>`<details class="item"><summary><strong>${esc(p.nome)} • ${esc(p.tam)}</strong><small>Estoque: ${p.estoque||0} · Custo: ${brl(p.custo)} · Venda: ${brl(p.preco)}</small></summary><div class="editbox"><div class="grid"><div><label>Nome</label><input id="pe_nome_${i}" value="${esc(p.nome)}"></div><div><label>Tamanho</label><input id="pe_tam_${i}" value="${esc(p.tam)}"></div><div><label>Categoria</label><input id="pe_cat_${i}" value="${esc(p.cat)}"></div><div><label>Custo total</label><input id="pe_custo_${i}" inputmode="decimal" value="${moneyInput(p.custo)}"></div><div><label>Preço</label><input id="pe_preco_${i}" inputmode="decimal" value="${moneyInput(p.preco)}"></div><div><label>Estoque</label><input id="pe_estoque_${i}" type="number" value="${p.estoque||0}"></div></div><div class="field"><label>Observações</label><input id="pe_obs_${i}" value="${esc(p.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateProduct(${i})">SALVAR PRODUTO</button><button class="danger" onclick="removeProduct(${i})">REMOVER</button></div></div></div></details>`).join('')||'<div class="empty">Nenhum produto</div>';
-$('clientList').innerHTML=clients.map((c,i)=>`<details class="item"><summary><strong>${esc(c.nome)}</strong></summary><div class="editbox"><div class="field"><label>Nome</label><input id="ce_nome_${i}" value="${esc(c.nome)}"></div><div class="grid"><div><label>Contato</label><input id="ce_tel_${i}" value="${esc(c.tel||'')}"></div><div><label>Cidade</label><input id="ce_cidade_${i}" value="${esc(c.cidade||'')}"></div></div><div class="field"><label>Observações</label><input id="ce_obs_${i}" value="${esc(c.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateClient(${i})">SALVAR CLIENTE</button><button class="danger" onclick="removeClient(${i})">REMOVER</button></div></div></div>`).join('')||'<div class="empty">Nenhum cliente</div>';
+const normalizedClients=(Array.isArray(clients)?clients:[]).map((c)=>typeof c==='string'?{nome:c,tel:'',cidade:'',obs:''}:{nome:String(c?.nome||''),tel:String(c?.tel||''),cidade:String(c?.cidade||''),obs:String(c?.obs||'')}).filter(c=>c.nome.trim());
+clients=normalizedClients;
+if(normalizedClients.length) store.set('clients',clients);
+$('clientList').innerHTML=normalizedClients.map((c,i)=>`<details class="item"><summary><strong>${esc(c.nome)}</strong><small>${c.tel?esc(c.tel):'Toque para abrir e editar'}</small></summary><div class="editbox"><div class="field"><label>Nome</label><input id="ce_nome_${i}" value="${esc(c.nome)}"></div><div class="grid"><div><label>Contato</label><input id="ce_tel_${i}" value="${esc(c.tel)}"></div><div><label>Cidade</label><input id="ce_cidade_${i}" value="${esc(c.cidade)}"></div></div><div class="field"><label>Observações</label><input id="ce_obs_${i}" value="${esc(c.obs)}"></div><div class="actions"><button class="gold" onclick="updateClient(${i})">SALVAR CLIENTE</button><button class="danger" onclick="removeClient(${i})">REMOVER</button></div></div></details>`).join('')||'<div class="empty">Nenhum cliente salvo</div>';
 $('v_cliente').innerHTML=clients.map(c=>`<option>${esc(c.nome)}</option>`).join('');$('v_produto').innerHTML=products.map((p,i)=>`<option value="${i}">${esc(p.nome)} • ${esc(p.tam)} — ${brl(p.preco)} · estoque ${p.estoque||0}</option>`).join('');let fat=sales.reduce((a,s)=>a+s.total,0),rec=sales.reduce((a,s)=>a+s.pago,0);$('kFat').textContent=brl(fat);$('kRec').textContent=brl(rec);$('kPend').textContent=brl(fat-rec);$('kVendas').textContent=sales.length;$('investido').textContent=brl(investment);$('roi').textContent=brl(fat-investment);if($('investimentoEdit'))$('investimentoEdit').value=investment.toFixed(2).replace('.',',');$('ultimas').innerHTML=sales.slice(0,5).map(s=>`<details class="item"><summary><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · ${brl(s.total)} · ${s.status}</small></summary></details>`).join('')||'<div class="empty">Nenhuma venda</div>';renderBalance();$('salesList').innerHTML=sales.map((s,i)=>`<details class="item"><summary><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · Total ${brl(s.total)} · Pago ${brl(s.pago)} · ${esc(s.pag)}</small></summary><div class="actions"><button class="gold" onclick="editSale(${i})">EDITAR PAGAMENTO</button><button class="danger" onclick="removeSale(${i})">REMOVER VENDA</button></div></div></details>`).join('')||'<div class="empty">Nenhuma venda</div>'}
 $('v_produto').onchange=()=>{let p=products[+$('v_produto').value];$('v_valor').value=p?.preco||0};renderAll();calc();renderCart();
 $('v_produto').onchange=()=>{let p=products[+$('v_produto').value];$('v_valor').value=p?.preco||0};
 renderAll();calc();
+
+// ===== BACKUP / RESTAURAÇÃO =====
+const BACKUP_KEYS=['products','clients','sales','investment','balanceCash','costMigration','capitalMigration','clients_backup_v27'];
+function makeBackup(){
+  const data={app:'Oliver Parfum',version:'2.7',createdAt:new Date().toISOString(),data:{}};
+  BACKUP_KEYS.forEach(k=>{const raw=localStorage.getItem(k);if(raw!==null){try{data.data[k]=JSON.parse(raw)}catch(e){data.data[k]=raw}}});
+  return data;
+}
+function exportBackup(){
+  const blob=new Blob([JSON.stringify(makeBackup(),null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Oliver_Parfum_Backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('Backup baixado ✓');
+}
+function applyBackup(data){
+  if(!data||!data.data)throw new Error('Backup inválido');
+  const keys=Object.keys(data.data);
+  if(!keys.length)throw new Error('Backup vazio');
+  keys.forEach(k=>{if(BACKUP_KEYS.includes(k)){localStorage.setItem(k,typeof data.data[k]==='string'?data.data[k]:JSON.stringify(data.data[k]))}});
+}
+function importBackup(input){
+  const file=input.files?.[0];if(!file)return;
+  const reader=new FileReader();reader.onload=()=>{try{const data=JSON.parse(reader.result);if(!confirm('Restaurar este backup? Os dados atuais serão substituídos pelos dados presentes no arquivo.'))return;applyBackup(data);alert('Backup restaurado. O aplicativo será recarregado.');location.reload()}catch(e){alert('Não foi possível restaurar este backup: '+e.message)}};reader.readAsText(file);input.value='';
+}
+function saveLocalBackup(){
+  try{localStorage.setItem('op_backup_local',JSON.stringify(makeBackup()));toast('Backup salvo neste celular ✓')}catch(e){alert('Não foi possível salvar o backup neste celular.')}
+}
+function restoreLocalBackup(){
+  const raw=localStorage.getItem('op_backup_local');if(!raw)return alert('Não existe backup salvo neste celular.');
+  if(!confirm('Restaurar o backup salvo neste celular? Os dados atuais serão substituídos.'))return;
+  try{applyBackup(JSON.parse(raw));alert('Backup restaurado. O aplicativo será recarregado.');location.reload()}catch(e){alert('Backup local inválido.')}
+}
+function restoreClientsBackup(){
+  try{const raw=localStorage.getItem('clients_backup_v27');if(!raw)return alert('Não encontrei uma cópia anterior dos clientes neste navegador.');const old=JSON.parse(raw);if(!Array.isArray(old)||!old.length)return alert('A cópia de clientes está vazia.');if(!confirm('Recuperar os clientes desta cópia? Os clientes atuais serão preservados e os nomes/dados que não existirem serão adicionados.'))return;const current=Array.isArray(clients)?clients:[];const seen=new Set(current.map(c=>String(c?.nome||'').trim().toLowerCase()).filter(Boolean));old.forEach(c=>{const n=String(c?.nome||'').trim();if(n&&!seen.has(n.toLowerCase())){current.push(c);seen.add(n.toLowerCase())}});clients=current;store.set('clients',clients);renderAll();toast('Clientes recuperados ✓')}catch(e){alert('Não foi possível recuperar a cópia de clientes.')}}
+
 if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});} </script>
 </body></html>
