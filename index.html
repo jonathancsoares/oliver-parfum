@@ -69,6 +69,17 @@ input,select{width:100%;padding:12px;border:1px solid #ddd5c8;border-radius:11px
 <div class="grid"><div class="field"><label>Forma de pagamento</label><select id="v_pag"><option>Pix</option><option>Dinheiro</option><option>Débito</option><option>Crédito</option><option>Parcelado</option><option>A pagar</option></select></div><div class="field"><label>Status</label><select id="v_status"><option>Pago</option><option>Pendente</option><option>Parcial</option></select></div></div>
 <div class="field"><label>Valor pago</label><input id="v_pago" inputmode="decimal" value="0"></div><button class="primary" onclick="addSaleMulti()">REGISTRAR VENDA</button></div><div class="card"><h2>Vendas</h2><div id="salesList"></div></div></section>
 
+<section id="pagamentos" class="page">
+<div class="kpis">
+<div class="kpi"><span>Total vendido</span><strong id="pg_total">R$ 0,00</strong></div>
+<div class="kpi"><span>Total recebido</span><strong id="pg_recebido">R$ 0,00</strong></div>
+<div class="kpi"><span>A receber</span><strong id="pg_receber">R$ 0,00</strong></div>
+</div>
+<div class="card"><h2>✅ Quem pagou</h2><div id="pg_pagos"></div></div>
+<div class="card"><h2>🟡 Pagamentos parciais</h2><div id="pg_parciais"></div></div>
+<div class="card"><h2>⏳ Falta pagar</h2><div id="pg_pendentes"></div></div>
+</section>
+
 <section id="balanco" class="page">
 <div class="kpis">
 <div class="kpi"><span>Faturamento</span><strong id="b_fat">R$ 0,00</strong></div>
@@ -107,7 +118,7 @@ input,select{width:100%;padding:12px;border:1px solid #ddd5c8;border-radius:11px
 </div>
 
 <nav>
-<button class="active" data-page="painel"><b>📊</b>Painel</button><button data-page="balanco"><b>📈</b>Balanço</button><button data-page="calculadora"><b>🧮</b>Calcular</button><button data-page="produtos"><b>📦</b>Produtos</button><button data-page="clientes"><b>👥</b>Clientes</button><button data-page="vendas"><b>🛒</b>Vendas</button><button data-page="backup"><b>💾</b>Backup</button>
+<button class="active" data-page="painel"><b>📊</b>Painel</button><button data-page="balanco"><b>📈</b>Balanço</button><button data-page="pagamentos"><b>💰</b>Pagamentos</button><button data-page="calculadora"><b>🧮</b>Calcular</button><button data-page="produtos"><b>📦</b>Produtos</button><button data-page="clientes"><b>👥</b>Clientes</button><button data-page="vendas"><b>🛒</b>Vendas</button><button data-page="backup"><b>💾</b>Backup</button>
 </nav>
 <script>
 const brl=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v||0);
@@ -252,13 +263,38 @@ function renderBalance(){
   const resultado=patrimonio-investment;
   $('b_fat').textContent=brl(fat);$('b_bruto').textContent=brl(bruto);$('b_liquido').textContent=brl(bruto);$('b_receber').textContent=brl(receber);$('b_estoque_custo').textContent=brl(estoqueCusto);$('b_estoque_venda').textContent=brl(estoqueVenda);$('b_estoque_lucro').textContent=brl(estoqueLucro);$('b_capital').textContent=brl(investment);$('b_caixa').textContent=brl(caixa);$('b_patrimonio').textContent=brl(patrimonio);$('b_resultado').textContent=brl(resultado);if($('balancoCaixa'))$('balancoCaixa').value=caixa.toFixed(2).replace('.',',');
 }
+function renderPayments(){
+  const norm=sales.map((s,i)=>{
+    const total=Number(s.total||0);
+    const pago=Math.min(total,Math.max(0,Number(s.pago||0)));
+    const restante=Math.max(0,total-pago);
+    const status=pago>=total&&total>0?'Pago':pago>0?'Parcial':'Pendente';
+    return {s,i,total,pago,restante,status};
+  });
+  const total=norm.reduce((a,x)=>a+x.total,0);
+  const recebido=norm.reduce((a,x)=>a+x.pago,0);
+  const receber=norm.reduce((a,x)=>a+x.restante,0);
+  $('pg_total').textContent=brl(total);$('pg_recebido').textContent=brl(recebido);$('pg_receber').textContent=brl(receber);
+  const card=x=>`<details class="item"><summary><strong>${esc(x.s.cliente||'Sem cliente')}</strong><small>${esc(x.s.produto||'')} · Total ${brl(x.total)} · Pago ${brl(x.pago)} · Falta ${brl(x.restante)}</small></summary><div class="editbox"><div class="row"><span>Total</span><strong>${brl(x.total)}</strong></div><div class="row"><span>Já pago</span><strong>${brl(x.pago)}</strong></div><div class="row"><span>Falta pagar</span><strong>${brl(x.restante)}</strong></div><div class="field"><label>Atualizar valor pago</label><input id="paid_${x.i}" inputmode="decimal" value="${moneyInput(x.pago)}"></div><div class="actions"><button class="gold" onclick="updatePaymentFromPayments(${x.i})">SALVAR PAGAMENTO</button></div></div></details>`;
+  const empty=t=>`<div class="empty">${t}</div>`;
+  $('pg_pagos').innerHTML=norm.filter(x=>x.status==='Pago').map(card).join('')||empty('Ninguém com pagamento quitado');
+  $('pg_parciais').innerHTML=norm.filter(x=>x.status==='Parcial').map(card).join('')||empty('Nenhum pagamento parcial');
+  $('pg_pendentes').innerHTML=norm.filter(x=>x.status==='Pendente').map(card).join('')||empty('Nenhum pagamento pendente');
+}
+function updatePaymentFromPayments(i){
+  const paid=Math.max(0,Number(num($('paid_'+i).value)));
+  sales[i].pago=Math.min(paid,Number(sales[i].total||0));
+  sales[i].status=sales[i].pago>=Number(sales[i].total||0)?'Pago':sales[i].pago>0?'Parcial':'Pendente';
+  store.set('sales',sales);renderAll();toast('Pagamento atualizado ✓');
+}
+
 function renderAll(){
 $('productList').innerHTML=products.map((p,i)=>`<details class="item"><summary><strong>${esc(p.nome)} • ${esc(p.tam)}</strong><small>Estoque: ${p.estoque||0} · Custo: ${brl(p.custo)} · Venda: ${brl(p.preco)}</small></summary><div class="editbox"><div class="grid"><div><label>Nome</label><input id="pe_nome_${i}" value="${esc(p.nome)}"></div><div><label>Tamanho</label><input id="pe_tam_${i}" value="${esc(p.tam)}"></div><div><label>Categoria</label><input id="pe_cat_${i}" value="${esc(p.cat)}"></div><div><label>Custo total</label><input id="pe_custo_${i}" inputmode="decimal" value="${moneyInput(p.custo)}"></div><div><label>Preço</label><input id="pe_preco_${i}" inputmode="decimal" value="${moneyInput(p.preco)}"></div><div><label>Estoque</label><input id="pe_estoque_${i}" type="number" value="${p.estoque||0}"></div></div><div class="field"><label>Observações</label><input id="pe_obs_${i}" value="${esc(p.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateProduct(${i})">SALVAR PRODUTO</button><button class="danger" onclick="removeProduct(${i})">REMOVER</button></div></div></div></details>`).join('')||'<div class="empty">Nenhum produto</div>';
 const normalizedClients=(Array.isArray(clients)?clients:[]).map((c)=>typeof c==='string'?{nome:c,tel:'',cidade:'',obs:''}:{nome:String(c?.nome||''),tel:String(c?.tel||''),cidade:String(c?.cidade||''),obs:String(c?.obs||'')}).filter(c=>c.nome.trim());
 clients=normalizedClients;
 if(normalizedClients.length) store.set('clients',clients);
 $('clientList').innerHTML=normalizedClients.map((c,i)=>`<details class="item"><summary><strong>${esc(c.nome)}</strong><small>${c.tel?esc(c.tel):'Toque para abrir e editar'}</small></summary><div class="editbox"><div class="field"><label>Nome</label><input id="ce_nome_${i}" value="${esc(c.nome)}"></div><div class="grid"><div><label>Contato</label><input id="ce_tel_${i}" value="${esc(c.tel)}"></div><div><label>Cidade</label><input id="ce_cidade_${i}" value="${esc(c.cidade)}"></div></div><div class="field"><label>Observações</label><input id="ce_obs_${i}" value="${esc(c.obs)}"></div><div class="actions"><button class="gold" onclick="updateClient(${i})">SALVAR CLIENTE</button><button class="danger" onclick="removeClient(${i})">REMOVER</button></div></div></details>`).join('')||'<div class="empty">Nenhum cliente salvo</div>';
-$('v_cliente').innerHTML=clients.map(c=>`<option>${esc(c.nome)}</option>`).join('');$('v_produto').innerHTML=products.map((p,i)=>`<option value="${i}">${esc(p.nome)} • ${esc(p.tam)} — ${brl(p.preco)} · estoque ${p.estoque||0}</option>`).join('');let fat=sales.reduce((a,s)=>a+s.total,0),rec=sales.reduce((a,s)=>a+s.pago,0);$('kFat').textContent=brl(fat);$('kRec').textContent=brl(rec);$('kPend').textContent=brl(fat-rec);$('kVendas').textContent=sales.length;$('investido').textContent=brl(investment);$('roi').textContent=brl(fat-investment);if($('investimentoEdit'))$('investimentoEdit').value=investment.toFixed(2).replace('.',',');$('ultimas').innerHTML=sales.slice(0,5).map(s=>`<details class="item"><summary><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · ${brl(s.total)} · ${s.status}</small></summary></details>`).join('')||'<div class="empty">Nenhuma venda</div>';renderBalance();$('salesList').innerHTML=sales.map((s,i)=>`<details class="item"><summary><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · Total ${brl(s.total)} · Pago ${brl(s.pago)} · ${esc(s.pag)}</small></summary><div class="actions"><button class="gold" onclick="editSale(${i})">EDITAR PAGAMENTO</button><button class="danger" onclick="removeSale(${i})">REMOVER VENDA</button></div></div></details>`).join('')||'<div class="empty">Nenhuma venda</div>'}
+$('v_cliente').innerHTML=clients.map(c=>`<option>${esc(c.nome)}</option>`).join('');$('v_produto').innerHTML=products.map((p,i)=>`<option value="${i}">${esc(p.nome)} • ${esc(p.tam)} — ${brl(p.preco)} · estoque ${p.estoque||0}</option>`).join('');let fat=sales.reduce((a,s)=>a+s.total,0),rec=sales.reduce((a,s)=>a+s.pago,0);$('kFat').textContent=brl(fat);$('kRec').textContent=brl(rec);$('kPend').textContent=brl(fat-rec);$('kVendas').textContent=sales.length;$('investido').textContent=brl(investment);$('roi').textContent=brl(fat-investment);if($('investimentoEdit'))$('investimentoEdit').value=investment.toFixed(2).replace('.',',');$('ultimas').innerHTML=sales.slice(0,5).map(s=>`<details class="item"><summary><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · ${brl(s.total)} · ${s.status}</small></summary></details>`).join('')||'<div class="empty">Nenhuma venda</div>';renderBalance();renderPayments();$('salesList').innerHTML=sales.map((s,i)=>`<details class="item"><summary><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · Total ${brl(s.total)} · Pago ${brl(s.pago)} · ${esc(s.pag)}</small></summary><div class="actions"><button class="gold" onclick="editSale(${i})">EDITAR PAGAMENTO</button><button class="danger" onclick="removeSale(${i})">REMOVER VENDA</button></div></div></details>`).join('')||'<div class="empty">Nenhuma venda</div>'}
 $('v_produto').onchange=()=>{let p=products[+$('v_produto').value];$('v_valor').value=p?.preco||0};renderAll();calc();renderCart();
 $('v_produto').onchange=()=>{let p=products[+$('v_produto').value];$('v_valor').value=p?.preco||0};
 renderAll();calc();
