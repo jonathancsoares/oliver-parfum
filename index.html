@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171717"><meta name="description" content="Gestão da Oliver Parfum">
 <link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg">
-<title>Oliver Parfum v2.7</title>
+<title>Oliver Parfum v2.9</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f3f0e9;color:#171717;font-family:Arial,sans-serif;padding-bottom:78px}
 .wrap{max-width:620px;margin:auto;padding:18px 15px}.brand{text-align:center;margin:6px 0 20px}.logo{font:700 30px Georgia,serif;letter-spacing:2px}.sub{font-size:10px;letter-spacing:4px;color:#9a783d}
@@ -19,7 +19,12 @@ input,select{width:100%;padding:12px;border:1px solid #ddd5c8;border-radius:11px
 .item{border:1px solid #e3ddd2;border-radius:13px;padding:0;margin:8px 0;background:#fff;overflow:hidden}.item>summary{list-style:none;cursor:pointer;padding:12px}.item>summary::-webkit-details-marker{display:none}.item>summary:after{content:"＋";float:right;font-size:18px;color:#9a783d;font-weight:700}.item[open]>summary:after{content:"−"}.item>summary strong{display:block}.item>summary small{color:#777}.item .editbox{margin:0 12px 12px}.item strong{display:block}.item small{color:#777}.danger{background:#eee;color:#8a2d2d;padding:8px 10px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.actions button{padding:8px 10px;font-size:12px}
 .empty{text-align:center;color:#777;padding:18px}.toast{position:fixed;top:15px;left:50%;transform:translateX(-50%);background:#171717;color:#fff;padding:11px 16px;border-radius:10px;display:none;z-index:30}
 @media(max-width:390px){.grid{grid-template-columns:1fr}.quick{grid-template-columns:repeat(3,1fr)}}
-.save-indicator{position:fixed;top:10px;right:10px;background:#171717;color:#e4c477;padding:7px 10px;border-radius:99px;font-size:10px;z-index:40;opacity:.9}.cart{margin-top:10px}.cart-item{background:#f7f4ee;border:1px solid #ddd3c2;border-radius:12px;padding:10px;margin:7px 0}.cart-total{font-size:20px;font-weight:900;margin-top:10px}.editbox{background:#f7f4ee;border-radius:14px;padding:12px;margin-top:10px}.mini{width:auto!important;padding:8px 10px!important}.addline{display:grid;grid-template-columns:1fr 80px 110px auto;gap:7px;align-items:end}@media(max-width:480px){.addline{grid-template-columns:1fr 70px 95px}.addline button{grid-column:1/-1}}
+.save-indicator{position:fixed;top:10px;right:10px;background:#171717;color:#e4c477;padding:7px 10px;border-radius:99px;font-size:10px;z-index:40;opacity:.9}.cart{margin-top:10px}.cart-item{background:#f7f4ee;border:1px solid #ddd3c2;border-radius:12px;padding:10px;margin:7px 0}.cart-total{font-size:20px;font-weight:900;margin-top:10px}.editbox{background:#f7f4ee;border-radius:14px;padding:12px;margin-top:10px}.mini{width:auto!important;padding:8px 10px!important}
+.product-tabs{display:flex;gap:7px;overflow-x:auto;padding:4px 1px 9px;margin:4px 0 10px;scrollbar-width:thin}
+.product-tab{flex:0 0 auto;background:#e8e3da;color:#171717;padding:10px 13px;border-radius:999px;font-size:12px}
+.product-tab.active{background:#171717;color:#e4c477}
+.product-count{font-size:11px;color:#777;margin:0 2px 8px}
+.addline{display:grid;grid-template-columns:1fr 80px 110px auto;gap:7px;align-items:end}@media(max-width:480px){.addline{grid-template-columns:1fr 70px 95px}.addline button{grid-column:1/-1}}
 </style></head>
 <body>
 <div class="toast" id="toast"></div><div id="saveIndicator" class="save-indicator">● SALVO</div>
@@ -52,11 +57,19 @@ input,select{width:100%;padding:12px;border:1px solid #ddd5c8;border-radius:11px
 </section>
 
 <section id="produtos" class="page"><div class="card"><h2>Produtos</h2>
-<div class="grid"><div class="field"><label>Produto</label><input id="p_nome"></div><div class="field"><label>Tamanho</label><input id="p_tam" placeholder="100ml"></div></div>
-<div class="grid"><div class="field"><label>Categoria</label><input id="p_cat" value="Perfume"></div><div class="field"><label>Custo total</label><input id="p_custo" inputmode="decimal"></div></div>
-<div class="grid"><div class="field"><label>Preço de venda</label><input id="p_preco" inputmode="decimal"></div><div class="field"><label>Estoque</label><input id="p_estoque" type="number" value="0"></div></div>
-<div class="field"><label>Observações</label><input id="p_obs"></div>
-<button class="primary" onclick="addProduct()">Adicionar produto</button></div><div id="productList"></div></section>
+ <div class="grid"><div class="field"><label>Produto</label><input id="p_nome"></div><div class="field"><label>Tamanho</label><input id="p_tam" placeholder="100ml"></div></div>
+ <div class="grid"><div class="field"><label>Categoria da loja</label><select id="p_cat"><option value="Arabes">Árabes</option><option value="Victoria Secrets">Victoria Secrets</option><option value="Brand Collection">Brand Collection</option><option value="Importados">Importados</option></select></div><div class="field"><label>Tipo</label><input id="p_tipo" value="Perfume" placeholder="Perfume / Hidratante / Body Splash"></div></div>
+ <div class="grid"><div class="field"><label>Preço de venda</label><input id="p_preco" inputmode="decimal"></div><div class="field"><label>Estoque</label><input id="p_estoque" type="number" value="0"></div></div>
+ <div class="field"><label>Observações</label><input id="p_obs"></div>
+ <button class="primary" onclick="addProduct()">Adicionar produto</button></div>
+ <div class="product-tabs" id="productTabs">
+   <button class="product-tab active" data-tab="todos">Todos</button>
+   <button class="product-tab" data-tab="importados">Importados</button>
+   <button class="product-tab" data-tab="arabes">Árabes</button>
+   <button class="product-tab" data-tab="brand">Brand Collection</button>
+   <button class="product-tab" data-tab="victoria">Victoria Secrets</button>
+ </div>
+ <div id="productList"></div></section>
 
 <section id="clientes" class="page"><div class="card"><h2>Clientes</h2>
 <div class="field"><label>Nome</label><input id="cl_nome"></div><div class="grid"><div class="field"><label>WhatsApp/Contato</label><input id="cl_tel"></div><div class="field"><label>Cidade</label><input id="cl_cidade"></div></div><div class="field"><label>Observações</label><input id="cl_obs"></div>
@@ -192,7 +205,7 @@ function moneyInput(v){return Number(v||0).toFixed(2).replace('.',',')}
 function updateProduct(i){
   products[i].nome=$('pe_nome_'+i).value.trim();
   products[i].tam=$('pe_tam_'+i).value.trim();
-  products[i].cat=$('pe_cat_'+i).value.trim();
+  products[i].cat=$('pe_cat_'+i).value.trim()||'Perfume';products[i].categoria=$('pe_grupo_'+i).value;
   products[i].custo=num($('pe_custo_'+i).value);products[i].custoBase=products[i].custo;
   products[i].preco=num($('pe_preco_'+i).value);
   products[i].estoque=Math.max(0,num($('pe_estoque_'+i).value));
@@ -222,7 +235,7 @@ function useProductInCalculator(i){
   calc();toast('Produto carregado na calculadora ✓');
 }
 function calcCustoTotal(base){base=Number(base||0);return base>0?Math.round((base+2.15+1.50+(base*0.11))*100)/100:0;}
-function addProduct(){let nome=$('p_nome').value.trim();if(!nome)return toast('Informe o produto');let custo=num($('p_custo').value);products.push({nome,tam:$('p_tam').value,cat:$('p_cat').value,custo,custoBase:custo,preco:num($('p_preco').value),estoque:num($('p_estoque').value),obs:''});store.set('products',products);['p_nome','p_tam','p_custo','p_preco','p_obs'].forEach(x=>$(x).value='');renderAll();toast('Produto adicionado ✓')}
+function addProduct(){let nome=$('p_nome').value.trim();if(!nome)return toast('Informe o produto');let custo=num($('p_custo').value);products.push({nome,tam:$('p_tam').value.trim(),cat:$('p_tipo').value.trim()||'Perfume',categoria:$('p_cat').value,custo,custoBase:custo,preco:num($('p_preco').value),estoque:num($('p_estoque').value),obs:$('p_obs').value.trim()});store.set('products',products);['p_nome','p_tam','p_tipo','p_custo','p_preco','p_obs'].forEach(x=>$(x).value='');$('p_cat').value='Arabes';$('p_tipo').value='Perfume';renderAll();toast('Produto adicionado ✓')}
 function addClient(){let nome=$('cl_nome').value.trim();if(!nome)return toast('Informe o cliente');clients.push({nome,tel:$('cl_tel').value,cidade:$('cl_cidade').value,obs:$('cl_obs').value});store.set('clients',clients);['cl_nome','cl_tel','cl_cidade','cl_obs'].forEach(x=>$(x).value='');renderAll();toast('Cliente adicionado ✓')}
 function addSale(){let cliente=$('v_cliente').value,pi=$('v_produto').value,prod=products[+pi],q=Math.max(1,num($('v_qtd').value)),unit=num($('v_valor').value)||prod?.preco||0,total=q*unit,pago=num($('v_pago').value);if(!cliente||!prod)return toast('Selecione cliente e produto');if(q>Number(prod.estoque||0))return toast('Estoque insuficiente: disponível '+Number(prod.estoque||0));prod.estoque=Number(prod.estoque||0)-q;sales.unshift({data:new Date().toLocaleDateString('pt-BR'),cliente,produto:prod.nome,tam:prod.tam,qtd:q,unit,total,pag:$('v_pag').value,status:$('v_status').value,pago});store.set('products',products);store.set('sales',sales);$('v_pago').value='0';renderAll();toast('Venda registrada ✓ — estoque atualizado')}
 
@@ -335,19 +348,75 @@ function removeOrder(i){
   if(!confirm('Remover esta encomenda?'))return;
   orders.splice(i,1);store.set('orders',orders);renderAll();toast('Encomenda removida ✓');
 }
+
+let activeProductTab='todos';
+
+function normalizeText(v){
+  return String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+}
+
+function productGroup(p){
+  const cat=normalizeText(p.categoria||'');
+  if(cat.includes('brand')) return 'brand';
+  if(cat.includes('victoria')) return 'victoria';
+  if(cat.includes('arab')) return 'arabes';
+  if(cat.includes('import')) return 'importados';
+  const size=normalizeText(p.tam).replace(/\\s+/g,'');
+  if(size.includes('25ml')) return 'brand';
+  const all=normalizeText((p.nome||'')+' '+(p.cat||''));
+  const vs=['victoria secret','victorias secret','body splash','bare vanilla','love spell','coconut passion','pure seduction','velvet petals','aqua kiss','amber romance','midnight bloom','warm vanilla woods','angel cake','gelato oasis','golden apricot','golden saffron','pitaya paradise','seashell shimmer','velvet berry cream','whipped milk and sugar'];
+  if(vs.some(x=>all.includes(x))) return 'victoria';
+  const ar=['lattafa','afnan','armaf','maison alhambra','french avenue','al haramain','al wataniah','bidaya','rayhaan','fakhar','fahkar','asad','yara','khamrah','khadlaj','zanzibar','musamam','maahir','mahir','oud for glory','joire','joiri','eclaire','afeef','ametista','amethyst','9pm','ana abiyedh','ramz','najdia','shaghaf','mayar','club de nuit','honor','legacy','bourbon','elixir','fragrance world'];
+  if(ar.some(x=>all.includes(x))) return 'arabes';
+  return null;
+}
+
+function sortedProducts(){
+  return (Array.isArray(products)?products:[]).map((p,originalIndex)=>({p,originalIndex})).sort((a,b)=>
+    String(a.p?.nome||'').localeCompare(String(b.p?.nome||''),'pt-BR',{sensitivity:'base'})
+  );
+}
+
+function setupProductTabs(){
+  document.querySelectorAll('.product-tab').forEach(btn=>{
+    btn.onclick=()=>{
+      activeProductTab=btn.dataset.tab;
+      document.querySelectorAll('.product-tab').forEach(x=>x.classList.toggle('active',x===btn));
+      renderProductsOnly();
+    };
+  });
+}
+
+function renderProductsOnly(){
+  const list=sortedProducts();
+  const filtered=list.filter(x=>activeProductTab==='todos'||productGroup(x.p)===activeProductTab);
+  const labels={todos:'Todos',importados:'Importados',arabes:'Árabes',brand:'Brand Collection',victoria:'Victoria Secrets'};
+  const label=labels[activeProductTab]||'Todos';
+  const el=$('productList');
+  if(!el)return;
+  el.innerHTML=`<div class="product-count">${filtered.length} produto${filtered.length===1?'':'s'} em ${label}</div>`+
+    (filtered.map(x=>{
+      const p=x.p,i=x.originalIndex;
+      return `<details class="item"><summary><strong>${esc(p.nome)} • ${esc(p.tam)}</strong><small>Estoque: ${p.estoque||0} · Custo: ${brl(p.custo)} · Venda: ${brl(p.preco)}</small></summary><div class="editbox"><div class="grid"><div><label>Nome</label><input id="pe_nome_${i}" value="${esc(p.nome)}"></div><div><label>Tamanho</label><input id="pe_tam_${i}" value="${esc(p.tam)}"></div><div><label>Categoria da loja</label><select id="pe_grupo_${i}"><option value="Arabes" ${productGroup(p)==='arabes'?'selected':''}>Árabes</option><option value="Victoria Secrets" ${productGroup(p)==='victoria'?'selected':''}>Victoria Secrets</option><option value="Brand Collection" ${productGroup(p)==='brand'?'selected':''}>Brand Collection</option><option value="Importados" ${productGroup(p)==='importados'?'selected':''}>Importados</option></select></div><div><label>Tipo</label><input id="pe_cat_${i}" value="${esc(p.cat||'Perfume')}"></div><div><label>Custo total</label><input id="pe_custo_${i}" inputmode="decimal" value="${moneyInput(p.custo)}"></div><div><label>Preço</label><input id="pe_preco_${i}" inputmode="decimal" value="${moneyInput(p.preco)}"></div><div><label>Estoque</label><input id="pe_estoque_${i}" type="number" value="${p.estoque||0}"></div></div><div class="field"><label>Observações</label><input id="pe_obs_${i}" value="${esc(p.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateProduct(${i})">SALVAR PRODUTO</button><button class="danger" onclick="removeProduct(${i})">REMOVER</button></div></div></details>`;
+    }).join('')||'<div class="empty">Nenhum produto nesta aba</div>');
+}
+
+function migrateProductCategories(){let changed=false;products.forEach(p=>{if(p.categoria)return;const g=productGroup(p);if(g){p.categoria=g==='brand'?'Brand Collection':g==='victoria'?'Victoria Secrets':'Árabes';changed=true;}});if(changed)store.set('products',products);}
+migrateProductCategories();
+
 function renderAll(){
-$('productList').innerHTML=products.map((p,i)=>`<details class="item"><summary><strong>${esc(p.nome)} • ${esc(p.tam)}</strong><small>Estoque: ${p.estoque||0} · Custo: ${brl(p.custo)} · Venda: ${brl(p.preco)}</small></summary><div class="editbox"><div class="grid"><div><label>Nome</label><input id="pe_nome_${i}" value="${esc(p.nome)}"></div><div><label>Tamanho</label><input id="pe_tam_${i}" value="${esc(p.tam)}"></div><div><label>Categoria</label><input id="pe_cat_${i}" value="${esc(p.cat)}"></div><div><label>Custo total</label><input id="pe_custo_${i}" inputmode="decimal" value="${moneyInput(p.custo)}"></div><div><label>Preço</label><input id="pe_preco_${i}" inputmode="decimal" value="${moneyInput(p.preco)}"></div><div><label>Estoque</label><input id="pe_estoque_${i}" type="number" value="${p.estoque||0}"></div></div><div class="field"><label>Observações</label><input id="pe_obs_${i}" value="${esc(p.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateProduct(${i})">SALVAR PRODUTO</button><button class="danger" onclick="removeProduct(${i})">REMOVER</button></div></div></div></details>`).join('')||'<div class="empty">Nenhum produto</div>';
+renderProductsOnly();
 const normalizedClients=(Array.isArray(clients)?clients:[]).map((c)=>typeof c==='string'?{nome:c,tel:'',cidade:'',obs:''}:{nome:String(c?.nome||''),tel:String(c?.tel||''),cidade:String(c?.cidade||''),obs:String(c?.obs||'')}).filter(c=>c.nome.trim());
 clients=normalizedClients;
 if(normalizedClients.length) store.set('clients',clients);
-$('clientList').innerHTML=normalizedClients.map((c,i)=>`<details class="item"><summary><strong>${esc(c.nome)}</strong><small>${c.tel?esc(c.tel):'Toque para abrir e editar'}</small></summary><div class="editbox"><div class="field"><label>Nome</label><input id="ce_nome_${i}" value="${esc(c.nome)}"></div><div class="grid"><div><label>Contato</label><input id="ce_tel_${i}" value="${esc(c.tel)}"></div><div><label>Cidade</label><input id="ce_cidade_${i}" value="${esc(c.cidade)}"></div></div><div class="field"><label>Observações</label><input id="ce_obs_${i}" value="${esc(c.obs)}"></div><div class="actions"><button class="gold" onclick="updateClient(${i})">SALVAR CLIENTE</button><button class="danger" onclick="removeClient(${i})">REMOVER</button></div></div></details>`).join('')||'<div class="empty">Nenhum cliente salvo</div>';
+const clientOrder=normalizedClients.map((c,originalIndex)=>({c,originalIndex})).sort((a,b)=>String(a.c.nome).localeCompare(String(b.c.nome),'pt-BR',{sensitivity:'base'}));$('clientList').innerHTML=clientOrder.map(x=>{const c=x.c,i=x.originalIndex;return `<details class="item"><summary><strong>${esc(c.nome)}</strong><small>${c.tel?esc(c.tel):'Toque para abrir e editar'}</small></summary><div class="editbox"><div class="field"><label>Nome</label><input id="ce_nome_${i}" value="${esc(c.nome)}"></div><div class="grid"><div><label>Contato</label><input id="ce_tel_${i}" value="${esc(c.tel)}"></div><div><label>Cidade</label><input id="ce_cidade_${i}" value="${esc(c.cidade)}"></div></div><div class="field"><label>Observações</label><input id="ce_obs_${i}" value="${esc(c.obs)}"></div><div class="actions"><button class="gold" onclick="updateClient(${i})">SALVAR CLIENTE</button><button class="danger" onclick="removeClient(${i})">REMOVER</button></div></div></details>`}).join('')||'<div class="empty">Nenhum cliente salvo</div>';
 $('e_cliente').innerHTML=clients.map(c=>`<option>${esc(c.nome)}</option>`).join('');
 $('e_produto').innerHTML=products.map((p,i)=>`<option value="${i}">${esc(p.nome)} • ${esc(p.tam)} — ${brl(p.preco)}</option>`).join('');
 $('e_produto').onchange=()=>{let p=products[+$('e_produto').value];$('e_valor').value=p?.preco||0};
 if($('e_produto').options.length && !$('e_valor').value){let p=products[+$('e_produto').value];$('e_valor').value=p?.preco||0;}
 $('ordersList').innerHTML=orders.map((o,i)=>`<details class="item"><summary><strong>${esc(o.cliente)} — ${esc(o.produto)}</strong><small>${o.data||''} · ${o.qtd||1} un. · ${brl(o.valor||0)} · ${esc(o.status||'Pendente')}</small></summary><div class="editbox"><div class="grid"><div class="field"><label>Cliente</label><select id="oe_cliente_${i}">${clients.map(c=>`<option ${c.nome===o.cliente?'selected':''}>${esc(c.nome)}</option>`).join('')}</select></div><div class="field"><label>Produto</label><input id="oe_produto_${i}" value="${esc(o.produto)}"></div><div class="field"><label>Quantidade</label><input id="oe_qtd_${i}" type="number" min="1" value="${o.qtd||1}"></div><div class="field"><label>Valor</label><input id="oe_valor_${i}" inputmode="decimal" value="${moneyInput(o.valor||0)}"></div></div><div class="field"><label>Status</label><select id="oe_status_${i}"><option ${o.status==='Pendente'?'selected':''}>Pendente</option><option ${o.status==='Confirmada'?'selected':''}>Confirmada</option><option ${o.status==='Pronta'?'selected':''}>Pronta</option><option ${o.status==='Entregue'?'selected':''}>Entregue</option><option ${o.status==='Cancelada'?'selected':''}>Cancelada</option></select></div><div class="field"><label>Observações</label><input id="oe_obs_${i}" value="${esc(o.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateOrder(${i})">SALVAR ENCOMENDA</button><button class="danger" onclick="removeOrder(${i})">REMOVER</button></div></div></details>`).join('')||'<div class="empty">Nenhuma encomenda cadastrada</div>';
 $('v_cliente').innerHTML=clients.map(c=>`<option>${esc(c.nome)}</option>`).join('');$('v_produto').innerHTML=products.map((p,i)=>`<option value="${i}">${esc(p.nome)} • ${esc(p.tam)} — ${brl(p.preco)} · estoque ${p.estoque||0}</option>`).join('');let fat=sales.reduce((a,s)=>a+s.total,0),rec=sales.reduce((a,s)=>a+s.pago,0);$('kFat').textContent=brl(fat);$('kRec').textContent=brl(rec);$('kPend').textContent=brl(fat-rec);$('kVendas').textContent=sales.length;$('investido').textContent=brl(investment);$('roi').textContent=brl(fat-investment);if($('investimentoEdit'))$('investimentoEdit').value=investment.toFixed(2).replace('.',',');$('ultimas').innerHTML=sales.slice(0,5).map(s=>`<details class="item"><summary><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · ${brl(s.total)} · ${s.status}</small></summary></details>`).join('')||'<div class="empty">Nenhuma venda</div>';renderBalance();renderPayments();$('salesList').innerHTML=sales.map((s,i)=>`<details class="item"><summary><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · Total ${brl(s.total)} · Pago ${brl(s.pago)} · ${esc(s.pag)}</small></summary><div class="actions"><button class="gold" onclick="editSale(${i})">EDITAR PAGAMENTO</button><button class="danger" onclick="removeSale(${i})">REMOVER VENDA</button></div></div></details>`).join('')||'<div class="empty">Nenhuma venda</div>'}
-$('v_produto').onchange=()=>{let p=products[+$('v_produto').value];$('v_valor').value=p?.preco||0};renderAll();calc();renderCart();
+$('v_produto').onchange=()=>{let p=products[+$('v_produto').value];$('v_valor').value=p?.preco||0};setupProductTabs();renderAll();calc();renderCart();
 $('v_produto').onchange=()=>{let p=products[+$('v_produto').value];$('v_valor').value=p?.preco||0};
 renderAll();calc();
 
