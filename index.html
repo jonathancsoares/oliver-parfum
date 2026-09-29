@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171717"><meta name="description" content="Gestão da Oliver Parfum">
 <link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg">
-<title>Oliver Parfum v2.9</title>
+<title>Oliver Parfum v3.0</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f3f0e9;color:#171717;font-family:Arial,sans-serif;padding-bottom:78px}
 .wrap{max-width:620px;margin:auto;padding:18px 15px}.brand{text-align:center;margin:6px 0 20px}.logo{font:700 30px Georgia,serif;letter-spacing:2px}.sub{font-size:10px;letter-spacing:4px;color:#9a783d}
@@ -86,7 +86,8 @@ input,select{width:100%;padding:12px;border:1px solid #ddd5c8;border-radius:11px
 <div class="field"><label>Cliente</label><select id="v_cliente"></select></div>
 <div class="addline"><div><label>Produto</label><select id="v_produto"></select></div><div><label>Qtd.</label><input id="v_qtd" type="number" value="1" min="1"></div><div><label>Valor unit.</label><input id="v_valor" inputmode="decimal"></div><button class="gold mini" onclick="addCartItem()">+ PRODUTO</button></div>
 <div id="saleCart" class="cart"></div><div class="row"><span>Total da venda</span><strong id="saleCartTotal">R$ 0,00</strong></div>
-<div class="grid"><div class="field"><label>Forma de pagamento</label><select id="v_pag"><option>Pix</option><option>Dinheiro</option><option>Débito</option><option>Crédito</option><option>Parcelado</option><option>A pagar</option></select></div><div class="field"><label>Status</label><select id="v_status"><option>Pago</option><option>Pendente</option><option>Parcial</option></select></div></div>
+<div class="grid"><div class="field"><label>Forma de pagamento</label><select id="v_pag"><option>Pix</option><option>Dinheiro</option><option>Débito</option><option>Crédito</option><option>Parcelado</option><option>A pagar</option></select></div><div class="field"><label>Tipo de lançamento</label><select id="v_tipo"><option value="Venda">Venda</option><option value="Consumo próprio">Consumo próprio</option></select></div></div>
+<div class="field"><label>Status</label><select id="v_status"><option>Pago</option><option>Pendente</option><option>Parcial</option></select></div>
 <div class="field"><label>Valor pago</label><input id="v_pago" inputmode="decimal" value="0"></div><button class="primary" onclick="addSaleMulti()">REGISTRAR VENDA</button></div><div class="card"><h2>Vendas</h2><div id="salesList"></div></div></section>
 
 <section id="pagamentos" class="page">
@@ -212,6 +213,19 @@ function updateProduct(i){
   products[i].obs=$('pe_obs_'+i).value;
   store.set('products',products);renderAll();toast('Produto atualizado ✓');
 }
+function consumeProduct(i){
+  const p=products[i];
+  if(!p)return;
+  const qtdRaw=prompt('Quantas unidades de '+p.nome+' você pegou para consumo?', '1');
+  if(qtdRaw===null)return;
+  const qtd=Math.max(1,Math.floor(num(qtdRaw)));
+  if(qtd>Number(p.estoque||0))return toast('Estoque insuficiente: disponível '+Number(p.estoque||0));
+  if(!confirm('Dar baixa de '+qtd+' unidade(s) de '+p.nome+' como consumo próprio?'))return;
+  p.estoque-=qtd;
+  sales.unshift({id:Date.now(),data:new Date().toLocaleDateString('pt-BR'),cliente:'Consumo próprio',items:[{produto:p.nome,tam:p.tam,qtd,unit:0,custo:p.custo,pi:i}],produto:p.nome,tam:p.tam,qtd,unit:0,total:0,pag:'Consumo próprio',status:'Consumo próprio',pago:0,tipo:'Consumo próprio'});
+  saveAll();renderAll();toast('Consumo baixado ✓');
+}
+
 function removeProduct(i){
   if(!confirm('Remover este produto?'))return;
   products.splice(i,1);store.set('products',products);renderAll();toast('Produto removido ✓');
@@ -281,16 +295,51 @@ function addCartItem(){let pi=+$('v_produto').value,p=products[pi],q=Math.max(1,
 function removeCartItem(i){saleCart.splice(i,1);renderCart()}
 function editCartItem(i){let x=saleCart[i],p=products[x.pi];let q=prompt('Quantidade',x.qtd);if(q===null)return;let u=prompt('Valor unitário',String(x.unit).replace('.',','));if(u===null)return;q=Math.max(1,Math.floor(num(q)));u=Math.max(0,num(u));if(q>p.estoque)return toast('Estoque insuficiente');x.qtd=q;x.unit=u;renderCart()}
 function renderCart(){let total=saleCart.reduce((a,x)=>a+x.qtd*x.unit,0);$('saleCartTotal').textContent=brl(total);$('saleCart').innerHTML=saleCart.map((x,i)=>{let p=products[x.pi];return `<div class="cart-item"><div class="row"><strong>${esc(p.nome)} • ${esc(p.tam)}</strong><strong>${brl(x.qtd*x.unit)}</strong></div><small>${x.qtd} × ${brl(x.unit)}</small><div class="actions"><button class="gold" onclick="editCartItem(${i})">EDITAR</button><button class="danger" onclick="removeCartItem(${i})">REMOVER</button></div></div>`}).join('')||'<div class="empty">Adicione um ou mais produtos à venda</div>'}
-function addSaleMulti(){let cliente=$('v_cliente').value;if(!cliente||!saleCart.length)return toast('Selecione cliente e adicione produtos');let total=saleCart.reduce((a,x)=>a+x.qtd*x.unit,0),pago=Math.min(total,Math.max(0,num($('v_pago').value))),items=[];for(let x of saleCart){let p=products[x.pi];if(x.qtd>Number(p.estoque||0))return toast('Estoque insuficiente: '+p.nome);p.estoque-=x.qtd;items.push({produto:p.nome,tam:p.tam,qtd:x.qtd,unit:x.unit,custo:p.custo,pi:x.pi})}sales.unshift({id:Date.now(),data:new Date().toLocaleDateString('pt-BR'),cliente,items,produto:items.map(x=>x.produto).join(' + '),tam:items.map(x=>x.tam).join(' + '),qtd:items.reduce((a,x)=>a+x.qtd,0),unit:0,total,pag:$('v_pag').value,status:pago>=total?'Pago':pago>0?'Parcial':$('v_status').value,pago});saleCart=[];saveAll();renderAll();renderCart();$('v_pago').value='0';toast('Venda registrada ✓');}
-function editSale(i){let s=sales[i],pago=prompt('Valor pago',String(s.pago||0).replace('.',','));if(pago===null)return;s.pago=Math.min(s.total,Math.max(0,num(pago)));s.status=s.pago>=s.total?'Pago':s.pago>0?'Parcial':'Pendente';saveAll();renderAll();toast('Venda atualizada ✓')}
+function addSaleMulti(){
+  let cliente=$('v_cliente').value;
+  if(!cliente||!saleCart.length)return toast('Selecione cliente e adicione produtos');
+  const tipo=$('v_tipo')?.value||'Venda';
+  let total=saleCart.reduce((a,x)=>a+x.qtd*x.unit,0);
+  let pago=Math.min(total,Math.max(0,num($('v_pago').value))),items=[];
+  for(let x of saleCart){
+    let p=products[x.pi];
+    if(x.qtd>Number(p.estoque||0))return toast('Estoque insuficiente: '+p.nome);
+    p.estoque-=x.qtd;
+    items.push({produto:p.nome,tam:p.tam,qtd:x.qtd,unit:tipo==='Consumo próprio'?0:x.unit,custo:p.custo,pi:x.pi});
+  }
+  if(tipo==='Consumo próprio'){total=0;pago=0;}
+  sales.unshift({id:Date.now(),data:new Date().toLocaleDateString('pt-BR'),cliente:tipo==='Consumo próprio'?'Consumo próprio':cliente,items,produto:items.map(x=>x.produto).join(' + '),tam:items.map(x=>x.tam).join(' + '),qtd:items.reduce((a,x)=>a+x.qtd,0),unit:0,total,pag:tipo==='Consumo próprio'?'Consumo próprio':$('v_pag').value,status:tipo==='Consumo próprio'?'Consumo próprio':(pago>=total?'Pago':pago>0?'Parcial':$('v_status').value),pago,tipo});
+  saleCart=[];saveAll();renderAll();renderCart();$('v_pago').value='0';$('v_tipo').value='Venda';toast(tipo==='Consumo próprio'?'Consumo baixado ✓':'Venda registrada ✓');
+}
+function editSale(i){
+  let s=sales[i];
+  if(s.tipo==='Consumo próprio')return toast('Consumo próprio não tem valor de venda');
+  const novoTotal=prompt('Valor FINAL que você vendeu (pode dar desconto)',String(s.total||0).replace('.',','));
+  if(novoTotal===null)return;
+  const total=Math.max(0,num(novoTotal));
+  const pagoAtual=Math.min(total,Math.max(0,num(s.pago||0)));
+  const novoPago=prompt('Valor já pago',String(pagoAtual).replace('.',','));
+  if(novoPago===null)return;
+  s.total=total;
+  s.pago=Math.min(total,Math.max(0,num(novoPago)));
+  s.status=s.pago>=total?'Pago':s.pago>0?'Parcial':'Pendente';
+  if(Array.isArray(s.items)&&s.items.length){
+    const soma=s.items.reduce((a,x)=>a+Number(x.qtd||0)*Number(x.unit||0),0);
+    if(soma>0){
+      const fator=total/soma;
+      s.items.forEach(x=>x.unit=Math.round(Number(x.unit||0)*fator*100)/100);
+    }
+  }
+  saveAll();renderAll();toast('Venda atualizada ✓');
+}
 function removeSale(i){if(!confirm('Remover esta venda? O estoque será devolvido.'))return;let s=sales[i];let items=s.items||[{produto:s.produto,tam:s.tam,qtd:s.qtd}];items.forEach(x=>{let p=products.find(p=>p.nome===x.produto&&p.tam===x.tam)||products.find(p=>p.nome===x.produto);if(p)p.estoque=Number(p.estoque||0)+Number(x.qtd||0)});sales.splice(i,1);saveAll();renderAll();toast('Venda removida ✓')}
 function saveBalanceCash(){localStorage.setItem('balanceCash',String(num($('balancoCaixa').value)));renderAll();toast('Caixa atualizado ✓');}
 function renderBalance(){
   const fat=sales.reduce((a,s)=>a+Number(s.total||0),0);
   let custoVendido=0, taxas=0, fretes=0, embalagens=0;
   sales.forEach(s=>{
-    if(Array.isArray(s.items)) s.items.forEach(it=>{custoVendido+=Number(it.custo||0)*Number(it.qtd||0);});
-    else {const p=products.find(p=>p.nome===s.produto&&p.tam===s.tam)||products.find(p=>p.nome===s.produto);if(p)custoVendido+=Number(p.custo||0)*Number(s.qtd||0);}
+    if(s.tipo!=='Consumo próprio' && s.status!=='Consumo próprio' && Array.isArray(s.items)) s.items.forEach(it=>{custoVendido+=Number(it.custo||0)*Number(it.qtd||0);});
+    else if(s.tipo!=='Consumo próprio' && s.status!=='Consumo próprio'){const p=products.find(p=>p.nome===s.produto&&p.tam===s.tam)||products.find(p=>p.nome===s.produto);if(p)custoVendido+=Number(p.custo||0)*Number(s.qtd||0);}
   });
   const bruto=fat-custoVendido;
   const receber=sales.reduce((a,s)=>a+Math.max(0,Number(s.total||0)-Number(s.pago||0)),0);
@@ -371,6 +420,20 @@ function productGroup(p){
   return null;
 }
 
+
+function sortedClientOptions(){
+  return (Array.isArray(clients)?clients:[]).map((c,i)=>({c,i})).sort((a,b)=>
+    String(a.c?.nome||'').localeCompare(String(b.c?.nome||''),'pt-BR',{sensitivity:'base'})
+  );
+}
+
+function sortedProductOptions(){
+  return (Array.isArray(products)?products:[]).map((p,i)=>({p,i})).sort((a,b)=>{
+    const n=String(a.p?.nome||'').localeCompare(String(b.p?.nome||''),'pt-BR',{sensitivity:'base'});
+    return n || String(a.p?.tam||'').localeCompare(String(b.p?.tam||''),'pt-BR',{sensitivity:'base'});
+  });
+}
+
 function sortedProducts(){
   return (Array.isArray(products)?products:[]).map((p,originalIndex)=>({p,originalIndex})).sort((a,b)=>
     String(a.p?.nome||'').localeCompare(String(b.p?.nome||''),'pt-BR',{sensitivity:'base'})
@@ -397,7 +460,7 @@ function renderProductsOnly(){
   el.innerHTML=`<div class="product-count">${filtered.length} produto${filtered.length===1?'':'s'} em ${label}</div>`+
     (filtered.map(x=>{
       const p=x.p,i=x.originalIndex;
-      return `<details class="item"><summary><strong>${esc(p.nome)} • ${esc(p.tam)}</strong><small>Estoque: ${p.estoque||0} · Custo: ${brl(p.custo)} · Venda: ${brl(p.preco)}</small></summary><div class="editbox"><div class="grid"><div><label>Nome</label><input id="pe_nome_${i}" value="${esc(p.nome)}"></div><div><label>Tamanho</label><input id="pe_tam_${i}" value="${esc(p.tam)}"></div><div><label>Categoria da loja</label><select id="pe_grupo_${i}"><option value="Arabes" ${productGroup(p)==='arabes'?'selected':''}>Árabes</option><option value="Victoria Secrets" ${productGroup(p)==='victoria'?'selected':''}>Victoria Secrets</option><option value="Brand Collection" ${productGroup(p)==='brand'?'selected':''}>Brand Collection</option><option value="Importados" ${productGroup(p)==='importados'?'selected':''}>Importados</option></select></div><div><label>Tipo</label><input id="pe_cat_${i}" value="${esc(p.cat||'Perfume')}"></div><div><label>Custo total</label><input id="pe_custo_${i}" inputmode="decimal" value="${moneyInput(p.custo)}"></div><div><label>Preço</label><input id="pe_preco_${i}" inputmode="decimal" value="${moneyInput(p.preco)}"></div><div><label>Estoque</label><input id="pe_estoque_${i}" type="number" value="${p.estoque||0}"></div></div><div class="field"><label>Observações</label><input id="pe_obs_${i}" value="${esc(p.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateProduct(${i})">SALVAR PRODUTO</button><button class="danger" onclick="removeProduct(${i})">REMOVER</button></div></div></details>`;
+      return `<details class="item"><summary><strong>${esc(p.nome)} • ${esc(p.tam)}</strong><small>Estoque: ${p.estoque||0} · Custo: ${brl(p.custo)} · Venda: ${brl(p.preco)}</small></summary><div class="editbox"><div class="grid"><div><label>Nome</label><input id="pe_nome_${i}" value="${esc(p.nome)}"></div><div><label>Tamanho</label><input id="pe_tam_${i}" value="${esc(p.tam)}"></div><div><label>Categoria da loja</label><select id="pe_grupo_${i}"><option value="Arabes" ${productGroup(p)==='arabes'?'selected':''}>Árabes</option><option value="Victoria Secrets" ${productGroup(p)==='victoria'?'selected':''}>Victoria Secrets</option><option value="Brand Collection" ${productGroup(p)==='brand'?'selected':''}>Brand Collection</option><option value="Importados" ${productGroup(p)==='importados'?'selected':''}>Importados</option></select></div><div><label>Tipo</label><input id="pe_cat_${i}" value="${esc(p.cat||'Perfume')}"></div><div><label>Custo total</label><input id="pe_custo_${i}" inputmode="decimal" value="${moneyInput(p.custo)}"></div><div><label>Preço</label><input id="pe_preco_${i}" inputmode="decimal" value="${moneyInput(p.preco)}"></div><div><label>Estoque</label><input id="pe_estoque_${i}" type="number" value="${p.estoque||0}"></div></div><div class="field"><label>Observações</label><input id="pe_obs_${i}" value="${esc(p.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateProduct(${i})">SALVAR PRODUTO</button><button class="muted" onclick="consumeProduct(${i})">BAIXAR CONSUMO</button><button class="danger" onclick="removeProduct(${i})">REMOVER</button></div></div></details>`;
     }).join('')||'<div class="empty">Nenhum produto nesta aba</div>');
 }
 
@@ -410,12 +473,12 @@ const normalizedClients=(Array.isArray(clients)?clients:[]).map((c)=>typeof c===
 clients=normalizedClients;
 if(normalizedClients.length) store.set('clients',clients);
 const clientOrder=normalizedClients.map((c,originalIndex)=>({c,originalIndex})).sort((a,b)=>String(a.c.nome).localeCompare(String(b.c.nome),'pt-BR',{sensitivity:'base'}));$('clientList').innerHTML=clientOrder.map(x=>{const c=x.c,i=x.originalIndex;return `<details class="item"><summary><strong>${esc(c.nome)}</strong><small>${c.tel?esc(c.tel):'Toque para abrir e editar'}</small></summary><div class="editbox"><div class="field"><label>Nome</label><input id="ce_nome_${i}" value="${esc(c.nome)}"></div><div class="grid"><div><label>Contato</label><input id="ce_tel_${i}" value="${esc(c.tel)}"></div><div><label>Cidade</label><input id="ce_cidade_${i}" value="${esc(c.cidade)}"></div></div><div class="field"><label>Observações</label><input id="ce_obs_${i}" value="${esc(c.obs)}"></div><div class="actions"><button class="gold" onclick="updateClient(${i})">SALVAR CLIENTE</button><button class="danger" onclick="removeClient(${i})">REMOVER</button></div></div></details>`}).join('')||'<div class="empty">Nenhum cliente salvo</div>';
-$('e_cliente').innerHTML=clients.map(c=>`<option>${esc(c.nome)}</option>`).join('');
-$('e_produto').innerHTML=products.map((p,i)=>`<option value="${i}">${esc(p.nome)} • ${esc(p.tam)} — ${brl(p.preco)}</option>`).join('');
+$('e_cliente').innerHTML=sortedClientOptions().map(x=>`<option value="${esc(x.c.nome)}">${esc(x.c.nome)}</option>`).join('');
+$('e_produto').innerHTML=sortedProductOptions().map(x=>`<option value="${x.i}">${esc(x.p.nome)} • ${esc(x.p.tam)} — ${brl(x.p.preco)}</option>`).join('');
 $('e_produto').onchange=()=>{let p=products[+$('e_produto').value];$('e_valor').value=p?.preco||0};
 if($('e_produto').options.length && !$('e_valor').value){let p=products[+$('e_produto').value];$('e_valor').value=p?.preco||0;}
 $('ordersList').innerHTML=orders.map((o,i)=>`<details class="item"><summary><strong>${esc(o.cliente)} — ${esc(o.produto)}</strong><small>${o.data||''} · ${o.qtd||1} un. · ${brl(o.valor||0)} · ${esc(o.status||'Pendente')}</small></summary><div class="editbox"><div class="grid"><div class="field"><label>Cliente</label><select id="oe_cliente_${i}">${clients.map(c=>`<option ${c.nome===o.cliente?'selected':''}>${esc(c.nome)}</option>`).join('')}</select></div><div class="field"><label>Produto</label><input id="oe_produto_${i}" value="${esc(o.produto)}"></div><div class="field"><label>Quantidade</label><input id="oe_qtd_${i}" type="number" min="1" value="${o.qtd||1}"></div><div class="field"><label>Valor</label><input id="oe_valor_${i}" inputmode="decimal" value="${moneyInput(o.valor||0)}"></div></div><div class="field"><label>Status</label><select id="oe_status_${i}"><option ${o.status==='Pendente'?'selected':''}>Pendente</option><option ${o.status==='Confirmada'?'selected':''}>Confirmada</option><option ${o.status==='Pronta'?'selected':''}>Pronta</option><option ${o.status==='Entregue'?'selected':''}>Entregue</option><option ${o.status==='Cancelada'?'selected':''}>Cancelada</option></select></div><div class="field"><label>Observações</label><input id="oe_obs_${i}" value="${esc(o.obs||'')}"></div><div class="actions"><button class="gold" onclick="updateOrder(${i})">SALVAR ENCOMENDA</button><button class="danger" onclick="removeOrder(${i})">REMOVER</button></div></div></details>`).join('')||'<div class="empty">Nenhuma encomenda cadastrada</div>';
-$('v_cliente').innerHTML=clients.map(c=>`<option>${esc(c.nome)}</option>`).join('');$('v_produto').innerHTML=products.map((p,i)=>`<option value="${i}">${esc(p.nome)} • ${esc(p.tam)} — ${brl(p.preco)} · estoque ${p.estoque||0}</option>`).join('');let fat=sales.reduce((a,s)=>a+s.total,0),rec=sales.reduce((a,s)=>a+s.pago,0);$('kFat').textContent=brl(fat);$('kRec').textContent=brl(rec);$('kPend').textContent=brl(fat-rec);$('kVendas').textContent=sales.length;$('investido').textContent=brl(investment);$('roi').textContent=brl(fat-investment);if($('investimentoEdit'))$('investimentoEdit').value=investment.toFixed(2).replace('.',',');$('ultimas').innerHTML=sales.slice(0,5).map(s=>`<details class="item"><summary><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · ${brl(s.total)} · ${s.status}</small></summary></details>`).join('')||'<div class="empty">Nenhuma venda</div>';renderBalance();renderPayments();$('salesList').innerHTML=sales.map((s,i)=>`<details class="item"><summary><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · Total ${brl(s.total)} · Pago ${brl(s.pago)} · ${esc(s.pag)}</small></summary><div class="actions"><button class="gold" onclick="editSale(${i})">EDITAR PAGAMENTO</button><button class="danger" onclick="removeSale(${i})">REMOVER VENDA</button></div></div></details>`).join('')||'<div class="empty">Nenhuma venda</div>'}
+$('v_cliente').innerHTML=sortedClientOptions().map(x=>`<option value="${esc(x.c.nome)}">${esc(x.c.nome)}</option>`).join('');$('v_produto').innerHTML=sortedProductOptions().map(x=>`<option value="${x.i}">${esc(x.p.nome)} • ${esc(x.p.tam)} — ${brl(x.p.preco)} · estoque ${x.p.estoque||0}</option>`).join('');let fat=sales.reduce((a,s)=>a+s.total,0),rec=sales.reduce((a,s)=>a+s.pago,0);$('kFat').textContent=brl(fat);$('kRec').textContent=brl(rec);$('kPend').textContent=brl(fat-rec);$('kVendas').textContent=sales.length;$('investido').textContent=brl(investment);$('roi').textContent=brl(fat-investment);if($('investimentoEdit'))$('investimentoEdit').value=investment.toFixed(2).replace('.',',');$('ultimas').innerHTML=sales.slice(0,5).map(s=>`<details class="item"><summary><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · ${brl(s.total)} · ${esc(s.tipo||s.status)}</small></summary></details>`).join('')||'<div class="empty">Nenhuma venda</div>';renderBalance();renderPayments();$('salesList').innerHTML=sales.map((s,i)=>`<details class="item"><summary><strong>${esc(s.cliente)} — ${esc(s.produto)}</strong><small>${s.data||''} · Total ${brl(s.total)} · Pago ${brl(s.pago)} · ${esc(s.tipo||s.pag)}</small></summary><div class="actions"><button class="gold" onclick="editSale(${i})">EDITAR PAGAMENTO</button><button class="danger" onclick="removeSale(${i})">REMOVER VENDA</button></div></div></details>`).join('')||'<div class="empty">Nenhuma venda</div>'}
 $('v_produto').onchange=()=>{let p=products[+$('v_produto').value];$('v_valor').value=p?.preco||0};setupProductTabs();renderAll();calc();renderCart();
 $('v_produto').onchange=()=>{let p=products[+$('v_produto').value];$('v_valor').value=p?.preco||0};
 renderAll();calc();
